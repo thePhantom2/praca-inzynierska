@@ -7,8 +7,7 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerTitleStyle: { fontWeight: '600' },
-        headerTintColor: colors.primaryDark,
+        headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.tabInactive,
         tabBarStyle: { backgroundColor: colors.surface },
@@ -29,12 +28,21 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="lista"
+        name="projekty"
         options={{
-          title: 'Lista',
+          title: 'Projekty',
+          tabBarIcon: ({ focused, size }) => (
+            <Ionicons name="folder-open-outline" color={focused ? colors.primary : colors.tabInactive} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="kalendarz"
+        options={{
+          title: 'Kalendarz',
           tabBarIcon: ({ focused, size }) => (
             <Ionicons
-              name="list-outline"
+              name="calendar-outline"
               color={focused ? colors.primary : colors.tabInactive}
               size={size}
             />

@@ -5,22 +5,28 @@ import { colors } from '@/theme/colors';
 type PrimaryButtonProps = {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'outline';
+  variant?: 'primary' | 'outline' | 'danger';
 };
 
 export function PrimaryButton({ label, onPress, variant = 'primary' }: PrimaryButtonProps) {
   const isOutline = variant === 'outline';
+  const isDanger = variant === 'danger';
 
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        isOutline ? styles.outline : styles.primary,
+        isOutline ? styles.outline : isDanger ? styles.danger : styles.primary,
         pressed && styles.pressed,
       ]}
     >
-      <Text style={[styles.label, isOutline ? styles.outlineLabel : styles.primaryLabel]}>
+      <Text
+        style={[
+          styles.label,
+          isOutline ? styles.outlineLabel : isDanger ? styles.dangerLabel : styles.primaryLabel,
+        ]}
+      >
         {label}
       </Text>
     </Pressable>
@@ -36,6 +42,9 @@ const styles = StyleSheet.create({
   primary: {
     backgroundColor: colors.primary,
   },
+  danger: {
+    backgroundColor: colors.danger,
+  },
   outline: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -46,6 +55,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   primaryLabel: {
+    color: colors.surface,
+  },
+  dangerLabel: {
     color: colors.surface,
   },
   outlineLabel: {

@@ -7,4 +7,7 @@ export const colors = {
   muted: '#6B7280',
   border: '#E5E7EB',
   tabInactive: '#9CA3AF',
+  danger: '#DC2626',
+  reminder: '#D97706',
+  event: '#7C3AED',
 };
