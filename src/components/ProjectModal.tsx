@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleShee
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TextField } from '@/components/TextField';
+import { ProjectActions } from '@/components/ProjectActions';
 import { type Project } from '@/storage/projectsStorage';
 import { colors } from '@/theme/colors';
 import { parseDateKey, toDateKey } from '@/utils/calendar';
@@ -17,13 +18,13 @@ type Props = {
   error: string;
   onCancel: () => void;
   onSave: (project: Project) => Promise<void>;
+  onDeleted?: () => void;
 };
 
-export function ProjectModal({ initial, saving, error, onCancel, onSave }: Props) {
+export function ProjectModal({ initial, saving, error, onCancel, onSave, onDeleted }: Props) {
   const [name, setName] = useState(initial?.name ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [deadline, setDeadline] = useState(initial?.deadline ?? '');
-  const [tasks, setTasks] = useState('');
   const [validation, setValidation] = useState('');
   const insets = useSafeAreaInsets();
 
@@ -36,8 +37,9 @@ export function ProjectModal({ initial, saving, error, onCancel, onSave }: Props
     }
     setValidation('');
     void onSave({
+      ...initial,
       id: initial?.id ?? makeId(), name: name.trim(), description: description.trim(), deadline: date,
-      tasks: [...(initial?.tasks ?? []), ...tasks.split('\n').map((title) => title.trim()).filter(Boolean).map((title) => ({ id: makeId(), title, completed: false, dateKey: date, description: '' }))],
+      tasks: initial?.tasks ?? [],
     });
   }
 
@@ -48,11 +50,10 @@ export function ProjectModal({ initial, saving, error, onCancel, onSave }: Props
         <View style={styles.card}>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.form}>
             <Text style={styles.title}>{initial ? 'Edytuj projekt' : 'Nowy projekt'}</Text>
-            <TextField label="Nazwa projektu" value={name} onChangeText={setName} autoCapitalize="sentences" maxLength={120} editable={!saving} />
-            <TextField label="Krótki opis" value={description} onChangeText={setDescription} autoCapitalize="sentences" multiline maxLength={500} style={styles.multiline} editable={!saving} />
-            <TextField label="Termin (RRRR-MM-DD)" placeholder="2026-12-20" value={deadline} onChangeText={setDeadline} maxLength={10} editable={!saving} />
-            <TextField label={initial ? 'Dodaj zadania (każde w osobnej linii)' : 'Zadania (każde w osobnej linii)'} value={tasks} onChangeText={setTasks} autoCapitalize="sentences" multiline style={styles.multiline} editable={!saving} />
-            {validation || error ? <Text accessibilityRole="alert" style={styles.error}>{validation || error}</Text> : null}
+            <TextField label="Nazwa projektu" value={name} onChangeText={setName} autoCapitalize="sentences" maxLength={120} />
+            <TextField label="Krótki opis" value={description} onChangeText={setDescription} autoCapitalize="sentences" multiline maxLength={500} style={styles.multiline} />
+            <TextField label="Termin (RRRR-MM-DD)" placeholder="2026-12-20" value={deadline} onChangeText={setDeadline} maxLength={10} />
+            {error || validation ? <Text accessibilityRole="alert" style={styles.error}>{error || validation}</Text> : null}
             <View style={styles.actions}>
               <Pressable accessibilityRole="button" disabled={saving} onPress={onCancel} style={[styles.button, styles.cancel]}>
                 <Text style={styles.cancelLabel}>Anuluj</Text>
@@ -61,6 +62,15 @@ export function ProjectModal({ initial, saving, error, onCancel, onSave }: Props
                 <Text style={styles.saveLabel}>{saving ? 'Zapisywanie…' : 'Zapisz'}</Text>
               </Pressable>
             </View>
+            {initial ? (
+              <View style={styles.projectActions}>
+                <ProjectActions
+                  project={initial}
+                  onArchived={onCancel}
+                  onDeleted={onDeleted ?? onCancel}
+                />
+              </View>
+            ) : null}
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
@@ -76,6 +86,7 @@ const styles = StyleSheet.create({
   multiline: { minHeight: 80, textAlignVertical: 'top' },
   error: { color: colors.danger, fontSize: 14 },
   actions: { flexDirection: 'row', gap: 12 },
+  projectActions: { borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 16 },
   button: { flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 12 },
   cancel: { borderWidth: 1, borderColor: colors.border },
   save: { backgroundColor: colors.primary },

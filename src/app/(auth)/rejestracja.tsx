@@ -13,6 +13,8 @@ export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [signingIn, setSigningIn] = useState(false);
   const [repeatPassword, setRepeatPassword] = useState('');
 
   return (
@@ -60,14 +62,25 @@ export default function RegisterScreen() {
             secureTextEntry
             placeholder="••••••••"
           />
+          {error ? <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text> : null}
           <PrimaryButton
-            label="Zarejestruj się"
-            onPress={() =>
-              signIn({
-                name: name.trim() || 'Jan Kowalski',
-                email: email.trim() || 'jan.kowalski@example.com',
-              })
-            }
+            label={signingIn ? 'Wczytywanie…' : 'Zarejestruj się'}
+            disabled={signingIn}
+            onPress={async () => {
+              if (signingIn) return;
+              setSigningIn(true);
+              setError('');
+              try {
+                await signIn({
+                  name: name.trim() || 'Jan Kowalski',
+                  email: email.trim() || 'jan.kowalski@example.com',
+                });
+              } catch {
+                setError('Nie udało się wczytać danych konta. Spróbuj ponownie.');
+              } finally {
+                setSigningIn(false);
+              }
+            }}
           />
         </View>
 

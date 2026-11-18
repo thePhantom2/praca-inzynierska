@@ -1,11 +1,12 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { MonthCalendar } from '@/components/MonthCalendar';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ProjectTaskModal } from '@/components/ProjectTaskModal';
+import { ProjectModal } from '@/components/ProjectModal';
 import { ScreenScaffold } from '@/components/ScreenScaffold';
 import { useProjects } from '@/context/projects';
 import { type ProjectTask } from '@/storage/projectsStorage';
@@ -20,6 +21,7 @@ export default function ProjectScreen() {
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState(false);
   const markedDates = useMemo(() => new Set(project?.tasks.flatMap((task) => task.dateKey ? [task.dateKey] : []) ?? []), [project]);
 
   async function updateTasks(tasks: ProjectTask[]) {
@@ -54,20 +56,47 @@ export default function ProjectScreen() {
   return (
     <ScreenScaffold title={project.name} subtitle={`Termin: ${formatDateKey(project.deadline)}`} subtitleStyle={styles.error} topInset={false}>
       <Stack.Screen options={{ title: project.name }} />
+      {project.completedAt ? (
+        <Text style={styles.section}>Archiwum • Zakończono {formatDateKey(toDateKey(new Date(project.completedAt)))}</Text>
+      ) : null}
       {project.description ? <Text style={styles.muted}>{project.description}</Text> : null}
+      <PrimaryButton
+        label="Edytuj projekt"
+        variant="outline"
+        disabled={saving}
+        onPress={() => { setError(''); setEditing(true); }}
+      />
       <Text style={styles.section}>Ukończone zadania: {completed}/{project.tasks.length}</Text>
       <MonthCalendar year={year} month={month} selectedDateKey={selectedDate} markedDateKeys={markedDates}
         onChangeMonth={(nextYear, nextMonth) => { setYear(nextYear); setMonth(nextMonth); }}
         onSelectDate={setSelectedDate} />
       <Text style={styles.muted}>Kropki oznaczają dni z zadaniami tego projektu.</Text>
       <PrimaryButton label="Dodaj zadanie" onPress={() => { setError(''); setAdding(true); }} />
-      {error && !adding ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
+      {error && !adding && !editing ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
       <Text style={styles.section}>Zadania — {formatDateKey(selectedDate)}</Text>
       {dayTasks.length ? dayTasks.map(taskRow) : <View style={styles.card}><Text style={styles.muted}>Brak zadań na wybrany dzień.</Text></View>}
       {undatedTasks.length ? <>
         <Text style={styles.section}>Wcześniejsze zadania bez daty</Text>
         {undatedTasks.map(taskRow)}
       </> : null}
+      {editing ? (
+        <ProjectModal
+          initial={project}
+          saving={saving}
+          error={error}
+          onCancel={() => {
+            if (!saving) { setEditing(false); setError(''); }
+          }}
+          onSave={async (updatedProject) => {
+            const next = projects.map((item) => item.id === id ? updatedProject : item);
+            if (await persist(next)) setEditing(false);
+          }}
+          onDeleted={() => {
+            setEditing(false);
+            router.replace('/projekty');
+          }}
+        />
+      ) : null}
       {adding ? <ProjectTaskModal dateKey={selectedDate} saving={saving} error={error}
         onCancel={() => { if (!saving) { setAdding(false); setError(''); } }}
         onSave={async (task) => {

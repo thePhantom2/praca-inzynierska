@@ -24,6 +24,7 @@ export function ScreenScaffold({ title, subtitle, subtitleStyle, children, topIn
           paddingBottom: insets.bottom + 32,
         },
       ]}
+      keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="automatic"
       style={styles.scroll}
     >
