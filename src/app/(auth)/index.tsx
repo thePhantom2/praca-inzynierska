@@ -12,6 +12,8 @@ export default function LoginScreen() {
   const { signIn } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [signingIn, setSigningIn] = useState(false);
 
   return (
     <SafeAreaView style={styles.flex} edges={['top', 'left', 'right', 'bottom']}>
@@ -40,14 +42,25 @@ export default function LoginScreen() {
               secureTextEntry
               placeholder="••••••••"
             />
+            {error ? <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text> : null}
             <PrimaryButton
-              label="Zaloguj się"
-              onPress={() =>
-                signIn({
-                  name: 'Jan Kowalski',
-                  email: email.trim() || 'jan.kowalski@example.com',
-                })
-              }
+              label={signingIn ? 'Wczytywanie…' : 'Zaloguj się'}
+              disabled={signingIn}
+              onPress={async () => {
+                if (signingIn) return;
+                setSigningIn(true);
+                setError('');
+                try {
+                  await signIn({
+                    name: 'Jan Kowalski',
+                    email: email.trim() || 'jan.kowalski@example.com',
+                  });
+                } catch {
+                  setError('Nie udało się wczytać danych konta. Spróbuj ponownie.');
+                } finally {
+                  setSigningIn(false);
+                }
+              }}
             />
           </View>
 

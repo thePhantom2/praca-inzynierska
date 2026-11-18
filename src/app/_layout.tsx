@@ -38,6 +38,7 @@ function RootNavigator() {
     >
       <Stack.Protected guard={!!user}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="ustawienia-konta" options={{ title: 'Ustawienia konta' }} />
         <Stack.Screen name="projekt/[id]" options={{ title: 'Projekt' }} />
         <Stack.Screen name="szczegoly/[id]" options={{ title: 'Wpis' }} />
       </Stack.Protected>

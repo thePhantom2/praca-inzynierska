@@ -9,6 +9,8 @@ type ProjectsContextValue = {
   saving: boolean;
   load: () => Promise<void>;
   persist: (projects: Project[]) => Promise<boolean>;
+  archiveProject: (id: string) => Promise<boolean>;
+  removeProject: (id: string) => Promise<boolean>;
   setError: (error: string) => void;
 };
 const ProjectsContext = createContext<ProjectsContextValue | null>(null);
@@ -52,7 +54,26 @@ export function ProjectsProvider({ children }: PropsWithChildren) {
     }
   }
 
-  return <ProjectsContext.Provider value={{ projects, ready, loadError, error, saving, load, persist, setError }}>{children}</ProjectsContext.Provider>;
+  async function archiveProject(id: string) {
+    return persist(projects.map((project) =>
+      project.id === id && !project.completedAt
+        ? { ...project, completedAt: new Date().toISOString() }
+        : project
+    ));
+  }
+
+  async function removeProject(id: string) {
+    return persist(projects.filter((project) => project.id !== id));
+  }
+
+  return (
+    <ProjectsContext.Provider value={{
+      projects, ready, loadError, error, saving, load, persist, setError,
+      archiveProject, removeProject,
+    }}>
+      {children}
+    </ProjectsContext.Provider>
+  );
 }
 export function useProjects() {
   const value = useContext(ProjectsContext);

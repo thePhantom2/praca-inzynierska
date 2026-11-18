@@ -14,6 +14,10 @@ import { formatDateKey, toDateKey } from '@/utils/calendar';
 export default function ProjectsScreen() {
   const { projects, ready, loadError, error, saving, load, persist, setError } = useProjects();
   const [editor, setEditor] = useState<{ project?: Project } | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const activeCount = projects.filter((project) => !project.completedAt).length;
+  const archivedCount = projects.length - activeCount;
+  const visibleProjects = projects.filter((project) => Boolean(project.completedAt) === showArchived);
 
   return (
     <ScreenScaffold title="Projekty" subtitle="Wszystkie projekty, terminy i postęp zadań w jednym miejscu.">
@@ -25,16 +29,38 @@ export default function ProjectsScreen() {
       ) : (
         <>
           <PrimaryButton label="Dodaj projekt" onPress={() => { setError(''); setEditor({}); }} />
+          <View style={styles.filters}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: !showArchived }}
+              onPress={() => setShowArchived(false)}
+              style={[styles.filter, !showArchived && styles.selectedFilter]}
+            >
+              <Text style={[styles.filterLabel, !showArchived && styles.selectedLabel]}>Aktualne ({activeCount})</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: showArchived }}
+              onPress={() => setShowArchived(true)}
+              style={[styles.filter, showArchived && styles.selectedFilter]}
+            >
+              <Text style={[styles.filterLabel, showArchived && styles.selectedLabel]}>Archiwum ({archivedCount})</Text>
+            </Pressable>
+          </View>
           {error && !editor ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
-          {projects.length === 0 ? (
+          {visibleProjects.length === 0 ? (
             <View style={styles.card}>
-              <Text style={styles.name}>Nie masz jeszcze projektów</Text>
-              <Text style={styles.muted}>Dodaj pierwszy projekt, określ termin i wpisz zadania do wykonania.</Text>
+              <Text style={styles.name}>{showArchived ? 'Archiwum jest puste' : 'Brak aktualnych projektów'}</Text>
+              <Text style={styles.muted}>
+                {showArchived
+                  ? 'Zakończone projekty znajdziesz tutaj.'
+                  : 'Dodaj projekt, określ termin i wpisz zadania do wykonania.'}
+              </Text>
             </View>
-          ) : [...projects].sort((a, b) => a.deadline.localeCompare(b.deadline)).map((project) => {
+          ) : [...visibleProjects].sort((a, b) => a.deadline.localeCompare(b.deadline)).map((project) => {
             const done = project.tasks.filter((task) => task.completed).length;
             const total = project.tasks.length;
-            const overdue = project.deadline < toDateKey(new Date()) && (total === 0 || done < total);
+            const overdue = !project.completedAt && project.deadline < toDateKey(new Date()) && (total === 0 || done < total);
             return (
               <View key={project.id} style={styles.card}>
                 <View style={styles.heading}>
@@ -50,6 +76,9 @@ export default function ProjectsScreen() {
                     <Text style={styles.editLabel}>Edytuj</Text>
                   </Pressable>
                 </View>
+                {project.completedAt ? (
+                  <Text style={styles.count}>Zakończono {formatDateKey(toDateKey(new Date(project.completedAt)))}</Text>
+                ) : null}
                 <Pressable accessibilityRole="button" accessibilityLabel={`Kalendarz projektu ${project.name}`}
                   style={{ gap: 12 }} onPress={() => router.push({ pathname: '/projekt/[id]', params: { id: project.id } })}>
                 <Text numberOfLines={3} style={styles.muted}>{project.description || 'Brak opisu'}</Text>
@@ -78,13 +107,21 @@ export default function ProjectsScreen() {
         onCancel={() => { if (!saving) { setEditor(null); setError(''); } }}
         onSave={async (project) => {
           const next = editor.project ? projects.map((item) => item.id === project.id ? project : item) : [...projects, project];
-          if (await persist(next)) setEditor(null);
+          if (await persist(next)) {
+            if (!editor.project) setShowArchived(false);
+            setEditor(null);
+          }
         }} /> : null}
     </ScreenScaffold>
   );
 }
 
 const styles = StyleSheet.create({
+  filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  filter: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', minHeight: 44, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  selectedFilter: { backgroundColor: colors.primary, borderColor: colors.primary },
+  filterLabel: { color: colors.text, fontSize: 15, fontWeight: '600' },
+  selectedLabel: { color: colors.surface },
   card: { backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 12 },
   heading: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   grow: { flex: 1 },

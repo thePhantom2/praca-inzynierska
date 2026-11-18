@@ -7,6 +7,7 @@ export type Project = {
   description: string;
   deadline: string;
   tasks: ProjectTask[];
+  completedAt?: string;
 };
 
 const STORAGE_KEY = 'projects';
@@ -18,6 +19,8 @@ export async function loadProjects(): Promise<Project[]> {
   if (!Array.isArray(projects) || !projects.every((project) =>
     project && typeof project.id === 'string' && typeof project.name === 'string' &&
     typeof project.description === 'string' && typeof project.deadline === 'string' &&
+    (project.completedAt === undefined ||
+      (typeof project.completedAt === 'string' && Number.isFinite(Date.parse(project.completedAt)))) &&
     Array.isArray(project.tasks) && project.tasks.every((task: ProjectTask) =>
       task && typeof task.id === 'string' && typeof task.title === 'string' &&
       typeof task.completed === 'boolean' &&

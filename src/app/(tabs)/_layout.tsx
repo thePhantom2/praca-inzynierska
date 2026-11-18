@@ -52,7 +52,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profil"
         options={{
-          title: 'Profil',
+          title: 'Konto',
           tabBarIcon: ({ focused, size }) => (
             <Ionicons
               name="person-outline"
@@ -62,19 +62,7 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="ustawienia"
-        options={{
-          title: 'Ustawienia',
-          tabBarIcon: ({ focused, size }) => (
-            <Ionicons
-              name="settings-outline"
-              color={focused ? colors.primary : colors.tabInactive}
-              size={size}
-            />
-          ),
-        }}
-      />
+      <Tabs.Screen name="ustawienia" options={{ href: null }} />
     </Tabs>
   );
 }
