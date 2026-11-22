@@ -20,14 +20,15 @@ const TYPE_COLORS = {
 
 type AgendaItemCardProps = {
   item: AgendaItem;
+  onPress?: () => void;
 };
 
-export function AgendaItemCard({ item }: AgendaItemCardProps) {
+export function AgendaItemCard({ item, onPress }: AgendaItemCardProps) {
   const isDeadline = item.type === 'deadline';
   return (
     <Pressable
       accessibilityRole="button"
-      onPress={() => router.push(item.href)}
+      onPress={onPress ?? (() => router.push(item.href))}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={[styles.badge, { backgroundColor: TYPE_COLORS[item.type] }]} />

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,8 +9,8 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { useEvents } from '@/context/events';
 import { useProjects } from '@/context/projects';
 import { colors } from '@/theme/colors';
-import { buildAgenda } from '@/utils/agenda';
-import { formatDateKey, toDateKey } from '@/utils/calendar';
+import { buildAgenda, type AgendaItem } from '@/utils/agenda';
+import { formatDateKey, parseDateKey, toDateKey } from '@/utils/calendar';
 
 export default function CalendarScreen() {
   const today = new Date();
@@ -22,6 +22,16 @@ export default function CalendarScreen() {
   const [selectedDateKey, setSelectedDateKey] = useState(toDateKey(today));
   const [showAll, setShowAll] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const listRef = useRef<FlatList<AgendaItem>>(null);
+
+  function showDate(dateKey: string) {
+    const date = parseDateKey(dateKey);
+    setSelectedDateKey(dateKey);
+    setYear(date.getFullYear());
+    setMonth(date.getMonth());
+    setShowAll(false);
+    listRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }
 
   const agenda = useMemo(() => buildAgenda(entries, projects), [entries, projects]);
   const markedDateKeys = useMemo(
@@ -41,9 +51,15 @@ export default function CalendarScreen() {
   return (
     <View style={styles.screen}>
       <FlatList
+        ref={listRef}
         data={visibleItems}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <AgendaItemCard item={item} />}
+        renderItem={({ item }) => (
+          <AgendaItemCard
+            item={item}
+            onPress={showAll && item.dateKey ? () => showDate(item.dateKey) : undefined}
+          />
+        )}
         contentContainerStyle={[
           styles.content,
           { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 32 },
@@ -51,7 +67,7 @@ export default function CalendarScreen() {
         keyboardShouldPersistTaps="handled"
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.title}>Kalendarz</Text>
+            <Text style={styles.title}>Moje terminy</Text>
             <MonthCalendar
               year={year}
               month={month}

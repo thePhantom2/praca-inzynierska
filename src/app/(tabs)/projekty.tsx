@@ -89,14 +89,10 @@ export default function ProjectsScreen() {
                 </View>
                 </Pressable>
                 {project.tasks.map((task) => (
-                  <Pressable key={task.id} accessibilityRole="checkbox" accessibilityState={{ checked: task.completed, disabled: saving }}
-                    accessibilityLabel={task.title} disabled={saving} style={styles.task}
-                    onPress={() => { void persist(projects.map((item) => item.id === project.id ? {
-                      ...item, tasks: item.tasks.map((entry) => entry.id === task.id ? { ...entry, completed: !entry.completed } : entry),
-                    } : item)); }}>
-                    <Ionicons name={task.completed ? 'checkbox' : 'square-outline'} size={24} color={task.completed ? colors.primary : colors.muted} />
+                  <View key={task.id} style={styles.task}>
                     <Text style={[styles.taskTitle, task.completed && styles.completed]}>{task.title}</Text>
-                  </Pressable>
+                    <Text style={styles.muted}>{task.completed ? 'Ukończone' : 'Do wykonania'}</Text>
+                  </View>
                 ))}
               </View>
             );

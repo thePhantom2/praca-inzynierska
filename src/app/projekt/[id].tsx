@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, type ScrollViewInstance } from 'react-native';
 
 import { MonthCalendar } from '@/components/MonthCalendar';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -11,7 +11,8 @@ import { ScreenScaffold } from '@/components/ScreenScaffold';
 import { useProjects } from '@/context/projects';
 import { type ProjectTask } from '@/storage/projectsStorage';
 import { colors } from '@/theme/colors';
-import { formatDateKey, toDateKey } from '@/utils/calendar';
+import { buildAgenda } from '@/utils/agenda';
+import { formatDateKey, parseDateKey, toDateKey } from '@/utils/calendar';
 
 export default function ProjectScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -22,7 +23,25 @@ export default function ProjectScreen() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(false);
-  const markedDates = useMemo(() => new Set(project?.tasks.flatMap((task) => task.dateKey ? [task.dateKey] : []) ?? []), [project]);
+  const scrollRef = useRef<ScrollViewInstance>(null);
+  const bodyOffset = useRef(0);
+  const calendarOffset = useRef(0);
+  const markedDates = useMemo(() => new Set(project ? [
+    project.deadline,
+    ...project.tasks.flatMap((task) => task.dateKey ? [task.dateKey] : []),
+  ] : []), [project]);
+  const deadlineDates = useMemo(() => new Set(project ? [project.deadline] : []), [project]);
+
+  function showDate(dateKey: string) {
+    const date = parseDateKey(dateKey);
+    setSelectedDate(dateKey);
+    setYear(date.getFullYear());
+    setMonth(date.getMonth());
+    scrollRef.current?.scrollTo({
+      y: Math.max(0, bodyOffset.current + calendarOffset.current - 12),
+      animated: true,
+    });
+  }
 
   async function updateTasks(tasks: ProjectTask[]) {
     return persist(projects.map((item) => item.id === id ? { ...item, tasks } : item));
@@ -31,12 +50,23 @@ export default function ProjectScreen() {
   function taskRow(task: ProjectTask) {
     return (
       <View key={task.id} style={styles.card}>
-        <Pressable accessibilityRole="checkbox" accessibilityLabel={task.title}
-          accessibilityState={{ checked: task.completed, disabled: saving }} disabled={saving}
-          style={styles.task} onPress={() => { if (project) void updateTasks(project.tasks.map((item) => item.id === task.id ? { ...item, completed: !item.completed } : item)); }}>
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityLabel={task.title}
+          accessibilityState={{ checked: task.completed, disabled: saving }}
+          disabled={saving}
+          style={styles.task}
+          onPress={() => {
+            if (!project) return;
+            void updateTasks(project.tasks.map((item) =>
+              item.id === task.id ? { ...item, completed: !item.completed } : item
+            ));
+          }}
+        >
           <Ionicons name={task.completed ? 'checkbox' : 'square-outline'} color={colors.primary} size={26} />
           <Text style={[styles.taskTitle, task.completed && styles.completed]}>{task.title}</Text>
         </Pressable>
+        <Text style={styles.muted}>{task.completed ? 'Ukończone' : 'Do wykonania'}</Text>
         {task.description ? <Text style={styles.muted}>{task.description}</Text> : null}
       </View>
     );
@@ -52,9 +82,17 @@ export default function ProjectScreen() {
   const dayTasks = project.tasks.filter((task) => task.dateKey === selectedDate);
   const undatedTasks = project.tasks.filter((task) => !task.dateKey);
   const completed = project.tasks.filter((task) => task.completed).length;
+  const allDates = buildAgenda([], [project]).filter((item) => item.dateKey);
 
   return (
-    <ScreenScaffold title={project.name} subtitle={`Termin: ${formatDateKey(project.deadline)}`} subtitleStyle={styles.error} topInset={false}>
+    <ScreenScaffold
+      title={project.name}
+      subtitle={`Termin: ${formatDateKey(project.deadline)}`}
+      subtitleStyle={styles.error}
+      topInset={false}
+      scrollRef={scrollRef}
+      onBodyLayout={(event) => { bodyOffset.current = event.nativeEvent.layout.y; }}
+    >
       <Stack.Screen options={{ title: project.name }} />
       {project.completedAt ? (
         <Text style={styles.section}>Archiwum • Zakończono {formatDateKey(toDateKey(new Date(project.completedAt)))}</Text>
@@ -67,10 +105,12 @@ export default function ProjectScreen() {
         onPress={() => { setError(''); setEditing(true); }}
       />
       <Text style={styles.section}>Ukończone zadania: {completed}/{project.tasks.length}</Text>
-      <MonthCalendar year={year} month={month} selectedDateKey={selectedDate} markedDateKeys={markedDates}
-        onChangeMonth={(nextYear, nextMonth) => { setYear(nextYear); setMonth(nextMonth); }}
-        onSelectDate={setSelectedDate} />
-      <Text style={styles.muted}>Kropki oznaczają dni z zadaniami tego projektu.</Text>
+      <View onLayout={(event) => { calendarOffset.current = event.nativeEvent.layout.y; }}>
+        <MonthCalendar year={year} month={month} selectedDateKey={selectedDate} markedDateKeys={markedDates} deadlineDateKeys={deadlineDates}
+          onChangeMonth={(nextYear, nextMonth) => { setYear(nextYear); setMonth(nextMonth); }}
+          onSelectDate={setSelectedDate} />
+      </View>
+      <Text style={styles.muted}>Kropki oznaczają terminy projektu i jego zadań.</Text>
       <PrimaryButton label="Dodaj zadanie" onPress={() => { setError(''); setAdding(true); }} />
       {error && !adding && !editing ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
       <Text style={styles.section}>Zadania — {formatDateKey(selectedDate)}</Text>
@@ -79,6 +119,26 @@ export default function ProjectScreen() {
         <Text style={styles.section}>Wcześniejsze zadania bez daty</Text>
         {undatedTasks.map(taskRow)}
       </> : null}
+      <Text style={styles.section}>Wszystkie terminy</Text>
+      {allDates.map((item) => (
+        <Pressable
+          key={item.id}
+          accessibilityRole="button"
+          accessibilityLabel={`Pokaż dzień ${formatDateKey(item.dateKey)} — ${item.type === 'deadline' ? 'zakończenie projektu' : item.title}`}
+          onPress={() => showDate(item.dateKey)}
+          style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+        >
+          <Text style={item.type === 'deadline' ? styles.error : styles.muted}>
+            {formatDateKey(item.dateKey)}
+          </Text>
+          <Text style={styles.taskTitle}>
+            {item.type === 'deadline' ? 'Zakończenie projektu' : item.title}
+          </Text>
+          {item.type === 'task' ? (
+            <Text style={styles.muted}>{item.completed ? 'Ukończone' : 'Do wykonania'}</Text>
+          ) : null}
+        </Pressable>
+      ))}
       {editing ? (
         <ProjectModal
           initial={project}
@@ -119,4 +179,5 @@ const styles = StyleSheet.create({
   taskTitle: { flex: 1, fontSize: 16, fontWeight: '600', color: colors.text },
   completed: { color: colors.muted, textDecorationLine: 'line-through' },
   error: { color: colors.danger },
+  pressed: { opacity: 0.75 },
 });
