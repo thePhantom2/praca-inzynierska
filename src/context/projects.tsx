@@ -1,5 +1,7 @@
-import { createContext, useContext, useEffect, useRef, useState, type PropsWithChildren } from 'react';
-import { loadProjects, saveProjects, type Project } from '@/storage/projectsStorage';
+import { createContext, useContext, type PropsWithChildren } from 'react';
+import { useUserCollection } from '@/hooks/useUserCollection';
+import { cloudErrorMessage, mergeProject } from '@/storage/cloudStorage';
+import { parseProject, type Project } from '@/storage/projectsStorage';
 
 type ProjectsContextValue = {
   projects: Project[];
@@ -15,65 +17,18 @@ type ProjectsContextValue = {
 };
 const ProjectsContext = createContext<ProjectsContextValue | null>(null);
 export function ProjectsProvider({ children }: PropsWithChildren) {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [ready, setReady] = useState(false);
-  const [loadError, setLoadError] = useState(false);
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
-  const busy = useRef(false);
-
-  async function load() {
-    setReady(false);
-    setLoadError(false);
-    try {
-      setProjects(await loadProjects());
-    } catch {
-      setLoadError(true);
-    } finally {
-      setReady(true);
-    }
-  }
-
-  useEffect(() => { void load(); }, []);
-
+  const data = useUserCollection('projects', parseProject, mergeProject);
+  const projects = data.items;
   async function persist(next: Project[]) {
-    if (busy.current) return false;
-    busy.current = true;
-    setSaving(true);
-    setError('');
-    try {
-      await saveProjects(next);
-      setProjects(next);
-      return true;
-    } catch {
-      setError('Nie udało się zapisać zmian. Spróbuj ponownie.');
-      return false;
-    } finally {
-      busy.current = false;
-      setSaving(false);
-    }
+    try { await data.persist(next); return true; }
+    catch (error) { data.setError(cloudErrorMessage(error)); return false; }
   }
-
-  async function archiveProject(id: string) {
-    return persist(projects.map((project) =>
-      project.id === id && !project.completedAt
-        ? { ...project, completedAt: new Date().toISOString() }
-        : project
-    ));
-  }
-
-  async function removeProject(id: string) {
-    return persist(projects.filter((project) => project.id !== id));
-  }
-
-  return (
-    <ProjectsContext.Provider value={{
-      projects, ready, loadError, error, saving, load, persist, setError,
-      archiveProject, removeProject,
-    }}>
-      {children}
-    </ProjectsContext.Provider>
-  );
+  return <ProjectsContext.Provider value={{
+    projects, ready: data.ready, loadError: data.loadError, error: data.error,
+    saving: data.saving, load: data.load, setError: data.setError, persist,
+    archiveProject: (id) => persist(projects.map((project) => project.id === id && !project.completedAt ? { ...project, completedAt: new Date().toISOString() } : project)),
+    removeProject: (id) => persist(projects.filter((project) => project.id !== id)),
+  }}>{children}</ProjectsContext.Provider>;
 }
 export function useProjects() {
   const value = useContext(ProjectsContext);

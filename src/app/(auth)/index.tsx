@@ -7,6 +7,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { TextField } from '@/components/TextField';
 import { useSession } from '@/context/session';
 import { colors } from '@/theme/colors';
+import { authErrorMessage } from '@/utils/authErrors';
 
 export default function LoginScreen() {
   const { signIn } = useSession();
@@ -24,7 +25,7 @@ export default function LoginScreen() {
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <Text style={styles.title}>Witaj ponownie</Text>
           <Text style={styles.subtitle}>
-            Zaloguj się, aby wejść do aplikacji. Na tym etapie dane nie są weryfikowane.
+            Zaloguj się swoim adresem e-mail i hasłem.
           </Text>
 
           <View style={styles.form}>
@@ -33,6 +34,7 @@ export default function LoginScreen() {
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
+              autoComplete="email"
               placeholder="jan.kowalski@example.com"
             />
             <TextField
@@ -40,6 +42,7 @@ export default function LoginScreen() {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              autoComplete="current-password"
               placeholder="••••••••"
             />
             {error ? <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text> : null}
@@ -52,11 +55,11 @@ export default function LoginScreen() {
                 setError('');
                 try {
                   await signIn({
-                    name: 'Jan Kowalski',
-                    email: email.trim() || 'jan.kowalski@example.com',
+                    email,
+                    password,
                   });
-                } catch {
-                  setError('Nie udało się wczytać danych konta. Spróbuj ponownie.');
+                } catch (cause) {
+                  setError(authErrorMessage(cause));
                 } finally {
                   setSigningIn(false);
                 }

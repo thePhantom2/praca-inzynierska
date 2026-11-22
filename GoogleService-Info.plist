@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBsqsgVICAUIXBXZ0cvdSwS98Zwsay0pVw</string>
+	<key>GCM_SENDER_ID</key>
+	<string>829158955202</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.anonymous.praca-inzynierska</string>
+	<key>PROJECT_ID</key>
+	<string>projekt-inzynierka-50d72</string>
+	<key>STORAGE_BUCKET</key>
+	<string>projekt-inzynierka-50d72.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:829158955202:ios:accd481c2b9c858215035b</string>
+</dict>
+</plist>

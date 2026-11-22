@@ -7,9 +7,10 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { TextField } from '@/components/TextField';
 import { useSession } from '@/context/session';
 import { colors } from '@/theme/colors';
+import { authErrorMessage } from '@/utils/authErrors';
 
 export default function RegisterScreen() {
-  const { signIn } = useSession();
+  const { signUp } = useSession();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +31,7 @@ export default function RegisterScreen() {
       >
         <Text style={styles.title}>Utwórz konto</Text>
         <Text style={styles.subtitle}>
-          Wypełnij formularz i przejdź dalej. Hasła nie są porównywane ani zapisywane.
+          Utwórz konto, podając imię i nazwisko, e-mail oraz hasło.
         </Text>
 
         <View style={styles.form}>
@@ -46,6 +47,7 @@ export default function RegisterScreen() {
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
+            autoComplete="email"
             placeholder="jan.kowalski@example.com"
           />
           <TextField
@@ -53,6 +55,7 @@ export default function RegisterScreen() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
+            autoComplete="new-password"
             placeholder="••••••••"
           />
           <TextField
@@ -60,6 +63,7 @@ export default function RegisterScreen() {
             value={repeatPassword}
             onChangeText={setRepeatPassword}
             secureTextEntry
+            autoComplete="new-password"
             placeholder="••••••••"
           />
           {error ? <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text> : null}
@@ -71,12 +75,11 @@ export default function RegisterScreen() {
               setSigningIn(true);
               setError('');
               try {
-                await signIn({
-                  name: name.trim() || 'Jan Kowalski',
-                  email: email.trim() || 'jan.kowalski@example.com',
+                await signUp({
+                  name, email, password, repeatPassword,
                 });
-              } catch {
-                setError('Nie udało się wczytać danych konta. Spróbuj ponownie.');
+              } catch (cause) {
+                setError(authErrorMessage(cause));
               } finally {
                 setSigningIn(false);
               }

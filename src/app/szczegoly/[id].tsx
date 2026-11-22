@@ -7,16 +7,19 @@ import { EventModal } from '@/components/EventModal';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenScaffold } from '@/components/ScreenScaffold';
 import { useEvents } from '@/context/events';
+import { cloudErrorMessage } from '@/storage/cloudStorage';
 import { colors } from '@/theme/colors';
 import { formatDateKey } from '@/utils/calendar';
 
 export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getEntry, updateEntry, removeEntry } = useEvents();
+  const { getEntry, updateEntry, removeEntry, isReady, loadError, error, load, saving } = useEvents();
   const [editVisible, setEditVisible] = useState(false);
 
   const entry = typeof id === 'string' ? getEntry(id) : undefined;
 
+  if (loadError) return <ScreenScaffold title="Wpis" topInset={false}><Text style={{ color: colors.danger }}>{error}</Text><PrimaryButton label="Spróbuj ponownie" onPress={() => { void load(); }} /></ScreenScaffold>;
+  if (!isReady) return <ScreenScaffold title="Wczytywanie…" topInset={false} />;
   if (!entry) {
     return (
       <View style={styles.fallback}>
@@ -33,7 +36,7 @@ export default function EventDetailsScreen() {
         text: 'Usuń',
         style: 'destructive',
         onPress: () => {
-          void removeEntry(entry.id).then(() => router.back());
+          void removeEntry(entry.id).then(() => router.back()).catch((cause) => Alert.alert('Nie udało się usunąć wpisu', cloudErrorMessage(cause)));
         },
       },
     ]);
@@ -47,7 +50,7 @@ export default function EventDetailsScreen() {
       />
       <Card title="Notatka" description={entry.notes || 'Brak dodatkowych informacji.'} />
       <PrimaryButton label="Edytuj" variant="outline" onPress={() => setEditVisible(true)} />
-      <PrimaryButton label="Usuń" variant="danger" onPress={confirmDelete} />
+      <PrimaryButton label="Usuń" variant="danger" disabled={saving} onPress={confirmDelete} />
 
       <EventModal
         visible={editVisible}
@@ -61,8 +64,8 @@ export default function EventDetailsScreen() {
           type: entry.type,
         }}
         onCancel={() => setEditVisible(false)}
-        onConfirm={(input) => {
-          void updateEntry(entry.id, input);
+        onConfirm={async (input) => {
+          await updateEntry(entry.id, input);
           setEditVisible(false);
         }}
       />

@@ -74,7 +74,7 @@ export default function ProjectScreen() {
 
   if (!ready) return <ScreenScaffold title="Projekt" topInset={false}><ActivityIndicator color={colors.primary} /></ScreenScaffold>;
   if (loadError) return <ScreenScaffold title="Projekt" topInset={false}>
-    <Text style={styles.error}>Nie udało się wczytać projektu.</Text>
+    <Text style={styles.error}>{error || 'Nie udało się wczytać projektu.'}</Text>
     <PrimaryButton label="Spróbuj ponownie" onPress={() => { void load(); }} />
   </ScreenScaffold>;
   if (!project) return <ScreenScaffold title="Nie znaleziono projektu" topInset={false} />;
@@ -148,7 +148,7 @@ export default function ProjectScreen() {
             if (!saving) { setEditing(false); setError(''); }
           }}
           onSave={async (updatedProject) => {
-            const next = projects.map((item) => item.id === id ? updatedProject : item);
+            const next = projects.map((item) => item.id === id ? { ...item, name: updatedProject.name, description: updatedProject.description, deadline: updatedProject.deadline } : item);
             if (await persist(next)) setEditing(false);
           }}
           onDeleted={() => {

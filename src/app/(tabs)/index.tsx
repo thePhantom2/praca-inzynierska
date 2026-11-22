@@ -14,7 +14,7 @@ import { formatDateKey, toDateKey } from '@/utils/calendar';
 
 export default function HomeScreen() {
   const { user } = useSession();
-  const { entries, isReady } = useEvents();
+  const { entries, isReady, loadError: eventsLoadError, error: eventsError, load: reloadEvents } = useEvents();
   const { projects, ready, loadError, load } = useProjects();
   const [todayKey, setTodayKey] = useState(() => toDateKey(new Date()));
 
@@ -84,7 +84,8 @@ export default function HomeScreen() {
             );
           }) : null}
           <Text style={styles.sectionTitle}>Najbliższy tydzień</Text>
-          {upcoming.length === 0 && !loadError ? (
+          {eventsLoadError ? <View style={{ gap: 10 }}><Text style={{ color: colors.danger }}>{eventsError}</Text><PrimaryButton label="Ponów wczytywanie kalendarza" onPress={() => { void reloadEvents(); }} /></View> : null}
+          {upcoming.length === 0 && !loadError && !eventsLoadError ? (
             <View style={styles.card}>
               <Text style={styles.emptyTitle}>Brak planów na najbliższy tydzień</Text>
               <Text style={styles.emptyText}>Dodaj zadanie w projekcie albo wpis w prywatnym kalendarzu.</Text>
