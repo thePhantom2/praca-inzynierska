@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { ScrollView, StyleSheet, Text, View, type StyleProp, type TextStyle } from 'react-native';
+import { type ReactNode, type Ref } from 'react';
+import { ScrollView, StyleSheet, Text, View, type LayoutChangeEvent, type ScrollViewInstance, type StyleProp, type TextStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/theme/colors';
@@ -10,13 +10,16 @@ type ScreenScaffoldProps = {
   subtitleStyle?: StyleProp<TextStyle>;
   children?: ReactNode;
   topInset?: boolean;
+  scrollRef?: Ref<ScrollViewInstance>;
+  onBodyLayout?: (event: LayoutChangeEvent) => void;
 };
 
-export function ScreenScaffold({ title, subtitle, subtitleStyle, children, topInset = true }: ScreenScaffoldProps) {
+export function ScreenScaffold({ title, subtitle, subtitleStyle, children, topInset = true, scrollRef, onBodyLayout }: ScreenScaffoldProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <ScrollView
+      ref={scrollRef}
       contentContainerStyle={[
         styles.content,
         {
@@ -30,7 +33,7 @@ export function ScreenScaffold({ title, subtitle, subtitleStyle, children, topIn
     >
       <Text style={styles.title}>{title}</Text>
       {subtitle ? <Text style={[styles.subtitle, subtitleStyle]}>{subtitle}</Text> : null}
-      <View style={styles.body}>{children}</View>
+      <View style={styles.body} onLayout={onBodyLayout}>{children}</View>
     </ScrollView>
   );
 }
