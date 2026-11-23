@@ -1,4 +1,6 @@
 import { Stack } from 'expo-router';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { PrimaryButton } from '@/components/PrimaryButton';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -23,7 +25,19 @@ export default function RootLayout() {
 }
 
 function RootNavigator() {
-  const { user } = useSession();
+  const { user, isReady, initializationError, retryInitialization } = useSession();
+
+  if (!isReady) {
+    return <View style={styles.status}><ActivityIndicator color={colors.primary} /></View>;
+  }
+  if (initializationError) {
+    return (
+      <View style={styles.status}>
+        <Text style={styles.error}>{initializationError}</Text>
+        <PrimaryButton label="Spróbuj ponownie" onPress={retryInitialization} />
+      </View>
+    );
+  }
 
   return (
     <Stack
@@ -48,3 +62,8 @@ function RootNavigator() {
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  status: { flex: 1, justifyContent: 'center', padding: 24, gap: 16, backgroundColor: colors.background },
+  error: { fontSize: 16, lineHeight: 22, color: colors.danger },
+});

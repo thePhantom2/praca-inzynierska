@@ -15,7 +15,7 @@ import { formatDateKey, parseDateKey, toDateKey } from '@/utils/calendar';
 export default function CalendarScreen() {
   const today = new Date();
   const insets = useSafeAreaInsets();
-  const { entries, isReady, addEntry } = useEvents();
+  const { entries, isReady, addEntry, loadError: eventsLoadError, error: eventsError, load: reloadEvents } = useEvents();
   const { projects, ready, loadError, load } = useProjects();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -101,10 +101,10 @@ export default function CalendarScreen() {
               </Pressable>
             </View>
             {loading ? <ActivityIndicator color={colors.primary} /> : null}
-            {loadError ? (
+            {loadError || eventsLoadError ? (
               <View style={styles.empty}>
-                <Text style={styles.error}>Nie udało się wczytać zadań i terminów projektów.</Text>
-                <PrimaryButton label="Spróbuj ponownie" onPress={() => { void load(); }} />
+                <Text style={styles.error}>{eventsError || 'Nie udało się wczytać zadań i terminów projektów.'}</Text>
+                <PrimaryButton label="Spróbuj ponownie" onPress={() => { void load(); void reloadEvents(); }} />
               </View>
             ) : null}
             <Text style={styles.section}>
@@ -112,7 +112,7 @@ export default function CalendarScreen() {
             </Text>
           </View>
         }
-        ListEmptyComponent={!loading && !loadError ? (
+        ListEmptyComponent={!loading && !loadError && !eventsLoadError ? (
           <View style={styles.empty}>
             <Text style={styles.emptyTitle}>Brak wpisów</Text>
             <Text style={styles.meta}>
@@ -128,8 +128,8 @@ export default function CalendarScreen() {
         title="Nowy wpis"
         dateKey={selectedDateKey}
         onCancel={() => setModalVisible(false)}
-        onConfirm={(input) => {
-          void addEntry(input);
+        onConfirm={async (input) => {
+          await addEntry(input);
           setModalVisible(false);
         }}
       />

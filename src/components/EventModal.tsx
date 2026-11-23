@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -6,6 +6,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { TextField } from '@/components/TextField';
 import { type CalendarEntryInput } from '@/context/events';
 import { type CalendarEntryType } from '@/storage/eventsStorage';
+import { cloudErrorMessage } from '@/storage/cloudStorage';
 import { colors } from '@/theme/colors';
 import { formatDateKey } from '@/utils/calendar';
 
@@ -15,10 +16,15 @@ type EventModalProps = {
   dateKey: string;
   initial?: CalendarEntryInput;
   onCancel: () => void;
-  onConfirm: (input: CalendarEntryInput) => void;
+  onConfirm: (input: CalendarEntryInput) => void | Promise<unknown>;
 };
 
 export function EventModal({ visible, title, dateKey, initial, onCancel, onConfirm }: EventModalProps) {
+  const busy = useRef(false);
+  const initialRef = useRef(initial);
+  initialRef.current = initial;
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [entryTitle, setEntryTitle] = useState('');
   const [notes, setNotes] = useState('');
   const [time, setTime] = useState('');
@@ -29,17 +35,28 @@ export function EventModal({ visible, title, dateKey, initial, onCancel, onConfi
     if (!visible) {
       return;
     }
+    const initial = initialRef.current;
+    setError('');
     setEntryTitle(initial?.title ?? '');
     setNotes(initial?.notes ?? '');
     setTime(initial?.time ?? '');
     setType(initial?.type ?? 'reminder');
-  }, [initial, visible]);
+  }, [visible]);
+
+  const cancel = () => { if (!busy.current) onCancel(); };
+  async function save() {
+    if (busy.current) return;
+    busy.current = true; setSaving(true); setError('');
+    try { await onConfirm({ title: entryTitle, notes, dateKey, time, type }); }
+    catch (cause) { setError(cloudErrorMessage(cause)); }
+    finally { busy.current = false; setSaving(false); }
+  }
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={cancel}>
       <Pressable
         style={[styles.backdrop, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}
-        onPress={onCancel}
+        onPress={cancel}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <Pressable style={styles.card} onPress={() => undefined}>
@@ -87,22 +104,16 @@ export function EventModal({ visible, title, dateKey, initial, onCancel, onConfi
                 />
               </View>
 
+              {error ? <Text accessibilityRole="alert" style={{ color: colors.danger, marginTop: 12 }}>{error}</Text> : null}
               <View style={styles.actions}>
                 <View style={styles.action}>
-                  <PrimaryButton label="Anuluj" variant="outline" onPress={onCancel} />
+                  <PrimaryButton label="Anuluj" variant="outline" onPress={cancel} />
                 </View>
                 <View style={styles.action}>
                   <PrimaryButton
-                    label="Zapisz"
-                    onPress={() =>
-                      onConfirm({
-                        title: entryTitle,
-                        notes,
-                        dateKey,
-                        time,
-                        type,
-                      })
-                    }
+                    label={saving ? 'Zapisywanie…' : 'Zapisz'}
+                    disabled={saving}
+                    onPress={() => { void save(); }}
                   />
                 </View>
               </View>

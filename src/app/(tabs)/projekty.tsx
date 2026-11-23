@@ -23,7 +23,7 @@ export default function ProjectsScreen() {
     <ScreenScaffold title="Projekty" subtitle="Wszystkie projekty, terminy i postęp zadań w jednym miejscu.">
       {!ready ? <ActivityIndicator color={colors.primary} /> : loadError ? (
         <View style={styles.card}>
-          <Text style={styles.error}>Nie udało się wczytać projektów.</Text>
+          <Text style={styles.error}>{error || 'Nie udało się wczytać projektów.'}</Text>
           <PrimaryButton label="Spróbuj ponownie" onPress={() => { void load(); }} />
         </View>
       ) : (
@@ -102,7 +102,7 @@ export default function ProjectsScreen() {
       {editor ? <ProjectModal initial={editor.project} saving={saving} error={error}
         onCancel={() => { if (!saving) { setEditor(null); setError(''); } }}
         onSave={async (project) => {
-          const next = editor.project ? projects.map((item) => item.id === project.id ? project : item) : [...projects, project];
+          const next = editor.project ? projects.map((item) => item.id === project.id ? { ...item, name: project.name, description: project.description, deadline: project.deadline } : item) : [...projects, project];
           if (await persist(next)) {
             if (!editor.project) setShowArchived(false);
             setEditor(null);

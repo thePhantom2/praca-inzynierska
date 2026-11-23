@@ -16,18 +16,23 @@ export async function loadProjects(): Promise<Project[]> {
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
   const projects: unknown = JSON.parse(raw);
-  if (!Array.isArray(projects) || !projects.every((project) =>
-    project && typeof project.id === 'string' && typeof project.name === 'string' &&
-    typeof project.description === 'string' && typeof project.deadline === 'string' &&
-    (project.completedAt === undefined ||
-      (typeof project.completedAt === 'string' && Number.isFinite(Date.parse(project.completedAt)))) &&
-    Array.isArray(project.tasks) && project.tasks.every((task: ProjectTask) =>
+  if (!Array.isArray(projects)) throw new Error('Nieprawidłowe dane projektów');
+  return projects.map(parseProject);
+}
+
+export function parseProject(value: unknown): Project {
+  const project = value as Project | null;
+  if (!project || typeof project.id !== 'string' || typeof project.name !== 'string' ||
+    typeof project.description !== 'string' || typeof project.deadline !== 'string' ||
+    (project.completedAt !== undefined && (typeof project.completedAt !== 'string' || !Number.isFinite(Date.parse(project.completedAt)))) ||
+    !Array.isArray(project.tasks) || !project.tasks.every((task: ProjectTask) =>
       task && typeof task.id === 'string' && typeof task.title === 'string' &&
       typeof task.completed === 'boolean' &&
       (task.dateKey === undefined || typeof task.dateKey === 'string') &&
-      (task.description === undefined || typeof task.description === 'string'))
-  )) throw new Error('Nieprawidłowe dane projektów');
-  return projects as Project[];
+      (task.description === undefined || typeof task.description === 'string')) ||
+    new Set(project.tasks.map((task) => task.id)).size !== project.tasks.length
+  ) throw new Error('Nieprawidłowe dane projektu');
+  return project;
 }
 
 export async function saveProjects(projects: Project[]) {

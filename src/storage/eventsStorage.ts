@@ -19,12 +19,15 @@ export async function loadEntries(): Promise<CalendarEntry[]> {
     return [];
   }
 
-  try {
-    const parsed = JSON.parse(raw) as CalendarEntry[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const parsed: unknown = JSON.parse(raw);
+  if (!Array.isArray(parsed)) throw new Error('Nieprawidłowe dane kalendarza');
+  return parsed.map(parseEntry);
+}
+
+export function parseEntry(value: unknown): CalendarEntry {
+  const entry = value as CalendarEntry | null;
+  if (!entry || !['id', 'title', 'notes', 'dateKey', 'time'].every((key) => typeof entry[key as keyof CalendarEntry] === 'string') || !['event', 'reminder'].includes(entry.type)) throw new Error('Nieprawidłowy wpis kalendarza');
+  return entry;
 }
 
 export async function saveEntries(entries: CalendarEntry[]) {

@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type AccountProfile = {
+  uid?: string;
   name: string;
   firstName: string;
   lastName: string;
@@ -15,7 +16,7 @@ export async function loadAccountProfiles(): Promise<AccountProfile[]> {
   if (!raw) return [];
   const profiles: unknown = JSON.parse(raw);
   if (!Array.isArray(profiles) || !profiles.every((profile) =>
-    profile && ['name', 'firstName', 'lastName', 'email', 'nickname'].every(
+    profile && (profile.uid === undefined || typeof profile.uid === 'string') && ['name', 'firstName', 'lastName', 'email', 'nickname'].every(
       (field) => typeof profile[field] === 'string'
     )
   )) {
