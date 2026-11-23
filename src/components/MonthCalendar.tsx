@@ -113,6 +113,8 @@ const useStyles = createThemedStyles((colors) => StyleSheet.create({
     height: 36,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.primaryContainer,
+    borderRadius: 10,
   },
   navLabel: {
     fontSize: 28,
@@ -147,6 +149,7 @@ const useStyles = createThemedStyles((colors) => StyleSheet.create({
     justifyContent: 'center',
   },
   today: {
+    backgroundColor: colors.primaryContainer,
     borderWidth: 1,
     borderColor: colors.primary,
   },

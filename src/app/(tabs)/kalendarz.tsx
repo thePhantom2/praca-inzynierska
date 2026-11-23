@@ -79,7 +79,6 @@ export default function CalendarScreen() {
               onChangeMonth={(nextYear, nextMonth) => { setYear(nextYear); setMonth(nextMonth); }}
               onSelectDate={(dateKey) => { setSelectedDateKey(dateKey); setShowAll(false); }}
             />
-            <Text style={styles.meta}>Czerwone kropki oznaczają terminy projektów.</Text>
             <PrimaryButton
               label={`Dodaj wpis na ${formatDateKey(selectedDateKey)}`}
               onPress={() => setModalVisible(true)}
@@ -158,9 +157,9 @@ const useStyles = createThemedStyles((colors) => StyleSheet.create({
     borderColor: colors.border,
     borderRadius: 12,
   },
-  selectedFilter: { backgroundColor: colors.primary, borderColor: colors.primary },
+  selectedFilter: { backgroundColor: colors.primaryContainer, borderColor: colors.primary },
   filterLabel: { fontSize: 15, fontWeight: '600', color: colors.text },
-  selectedLabel: { color: colors.onAccent },
+  selectedLabel: { color: colors.primaryDark },
   empty: {
     backgroundColor: colors.surface,
     padding: 16,

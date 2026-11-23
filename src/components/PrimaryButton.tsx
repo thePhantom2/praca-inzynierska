@@ -52,7 +52,7 @@ const useStyles = createThemedStyles((colors) => StyleSheet.create({
     backgroundColor: colors.danger,
   },
   outline: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.primaryContainer,
     borderWidth: 1,
     borderColor: colors.border,
   },
@@ -67,7 +67,7 @@ const useStyles = createThemedStyles((colors) => StyleSheet.create({
     color: colors.onAccent,
   },
   outlineLabel: {
-    color: colors.text,
+    color: colors.primaryDark,
   },
   pressed: {
     opacity: 0.75,

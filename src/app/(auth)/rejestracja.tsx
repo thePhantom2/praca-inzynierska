@@ -13,7 +13,8 @@ export default function RegisterScreen() {
   const { colors } = useTheme();
   const styles = useStyles();
   const { signUp } = useSession();
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -38,11 +39,22 @@ export default function RegisterScreen() {
 
         <View style={styles.form}>
           <TextField
-            label="Imię i nazwisko"
-            value={name}
-            onChangeText={setName}
+            label="Imię"
+            value={firstName}
+            onChangeText={setFirstName}
             autoCapitalize="words"
-            placeholder="Jan Kowalski"
+            autoComplete="given-name"
+            maxLength={100}
+            placeholder="Jan"
+          />
+          <TextField
+            label="Nazwisko"
+            value={lastName}
+            onChangeText={setLastName}
+            autoCapitalize="words"
+            autoComplete="family-name"
+            maxLength={100}
+            placeholder="Kowalski"
           />
           <TextField
             label="E-mail"
@@ -78,7 +90,7 @@ export default function RegisterScreen() {
               setError('');
               try {
                 await signUp({
-                  name, email, password, repeatPassword,
+                  firstName, lastName, email, password, repeatPassword,
                 });
               } catch (cause) {
                 setError(authErrorMessage(cause));

@@ -65,10 +65,10 @@ export default function ProjectScreen() {
             ));
           }}
         >
-          <Ionicons name={task.completed ? 'checkbox' : 'square-outline'} color={colors.primary} size={26} />
+          <Ionicons name={task.completed ? 'checkbox' : 'square-outline'} color={task.completed ? colors.success : colors.primary} size={26} />
           <Text style={[styles.taskTitle, task.completed && styles.completed]}>{task.title}</Text>
         </Pressable>
-        <Text style={styles.muted}>{task.completed ? 'Ukończone' : 'Do wykonania'}</Text>
+        <Text style={[styles.muted, task.completed && styles.done]}>{task.completed ? 'Ukończone' : 'Do wykonania'}</Text>
         {task.description ? <Text style={styles.muted}>{task.description}</Text> : null}
       </View>
     );
@@ -180,6 +180,7 @@ const useStyles = createThemedStyles((colors) => StyleSheet.create({
   task: { flexDirection: 'row', alignItems: 'center', minHeight: 44, gap: 12 },
   taskTitle: { flex: 1, fontSize: 16, fontWeight: '600', color: colors.text },
   completed: { color: colors.muted, textDecorationLine: 'line-through' },
+  done: { color: colors.success, fontWeight: '600' },
   error: { color: colors.danger },
   pressed: { opacity: 0.75 },
 }));

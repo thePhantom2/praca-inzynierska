@@ -79,12 +79,12 @@ export default function ProjectsScreen() {
                   </Pressable>
                 </View>
                 {project.completedAt ? (
-                  <Text style={styles.count}>Zakończono {formatDateKey(toDateKey(new Date(project.completedAt)))}</Text>
+                  <Text style={styles.archived}>Zakończono {formatDateKey(toDateKey(new Date(project.completedAt)))}</Text>
                 ) : null}
                 <Pressable accessibilityRole="button" accessibilityLabel={`Kalendarz projektu ${project.name}`}
                   style={{ gap: 12 }} onPress={() => router.push({ pathname: '/projekt/[id]', params: { id: project.id } })}>
                 <Text numberOfLines={3} style={styles.muted}>{project.description || 'Brak opisu'}</Text>
-                <Text style={[styles.muted, overdue && styles.error]}>Termin: {formatDateKey(project.deadline)}{overdue ? ' • Po terminie' : ''}</Text>
+                <Text style={styles.deadline}>Termin: {formatDateKey(project.deadline)}{overdue ? ' • Po terminie' : ''}</Text>
                 <Text style={styles.count}>Zadania: {done}/{total}</Text>
                 <View style={styles.track} accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: total || 1, now: done, text: `${done} z ${total} zadań ukończonych` }}>
                   <View style={[styles.fill, { width: `${total ? (done / total) * 100 : 0}%` }]} />
@@ -93,7 +93,9 @@ export default function ProjectsScreen() {
                 {project.tasks.map((task) => (
                   <View key={task.id} style={styles.task}>
                     <Text style={[styles.taskTitle, task.completed && styles.completed]}>{task.title}</Text>
-                    <Text style={styles.muted}>{task.completed ? 'Ukończone' : 'Do wykonania'}</Text>
+                    <View style={[styles.taskStatus, task.completed && styles.taskStatusDone]}>
+                      <Text style={[styles.taskStatusLabel, task.completed && styles.taskStatusDoneLabel]}>{task.completed ? 'Ukończone' : 'Do wykonania'}</Text>
+                    </View>
                   </View>
                 ))}
               </View>
@@ -117,9 +119,9 @@ export default function ProjectsScreen() {
 const useStyles = createThemedStyles((colors) => StyleSheet.create({
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   filter: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', minHeight: 44, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  selectedFilter: { backgroundColor: colors.primary, borderColor: colors.primary },
+  selectedFilter: { backgroundColor: colors.primaryContainer, borderColor: colors.primary },
   filterLabel: { color: colors.text, fontSize: 15, fontWeight: '600' },
-  selectedLabel: { color: colors.onAccent },
+  selectedLabel: { color: colors.primaryDark },
   card: { backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 12 },
   heading: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   grow: { flex: 1 },
@@ -128,11 +130,17 @@ const useStyles = createThemedStyles((colors) => StyleSheet.create({
   edit: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 44, paddingHorizontal: 8 },
   editLabel: { color: colors.primary, fontWeight: '600' },
   pressed: { opacity: 0.7 },
-  count: { fontSize: 14, fontWeight: '600', color: colors.text },
-  track: { height: 6, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
-  fill: { height: '100%', backgroundColor: colors.primary, borderRadius: 3 },
+  count: { fontSize: 14, fontWeight: '600', color: colors.success },
+  archived: { fontSize: 14, fontWeight: '600', color: colors.success },
+  deadline: { fontSize: 14, lineHeight: 21, color: colors.danger },
+  track: { height: 6, borderRadius: 3, backgroundColor: colors.successContainer, overflow: 'hidden' },
+  fill: { height: '100%', backgroundColor: colors.success, borderRadius: 3 },
   task: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44 },
   taskTitle: { flex: 1, fontSize: 14, color: colors.text },
+  taskStatus: { backgroundColor: colors.primaryContainer, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
+  taskStatusDone: { backgroundColor: colors.successContainer },
+  taskStatusLabel: { color: colors.primaryDark, fontSize: 12, fontWeight: '600' },
+  taskStatusDoneLabel: { color: colors.success },
   completed: { color: colors.muted, textDecorationLine: 'line-through' },
   error: { color: colors.danger, fontSize: 14 },
 }));

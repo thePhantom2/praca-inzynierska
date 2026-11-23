@@ -66,7 +66,10 @@ export default function HomeScreen() {
                 onPress={() => router.push({ pathname: '/projekt/[id]', params: { id: project.id } })}
                 style={({ pressed }) => [styles.card, pressed && styles.pressed]}
               >
-                <Text style={styles.projectName}>{project.name}</Text>
+                <View style={styles.projectHeading}>
+                  <Text style={styles.projectName}>{project.name}</Text>
+                  <View style={styles.projectBadge}><Text style={styles.projectBadgeLabel}>Projekt</Text></View>
+                </View>
                 <Text style={styles.emptyText} numberOfLines={3}>{project.description || 'Brak opisu'}</Text>
                 <Text style={styles.deadline}>Termin zakończenia: {formatDateKey(project.deadline)}</Text>
                 <Text style={styles.progressLabel}>Ukończone zadania: {completedTasks}/{totalTasks}</Text>
@@ -102,11 +105,14 @@ export default function HomeScreen() {
 
 const useStyles = createThemedStyles((colors) => StyleSheet.create({
   sectionTitle: { marginTop: 8, fontSize: 20, fontWeight: '700', color: colors.text },
-  projectName: { fontSize: 18, fontWeight: '700', color: colors.text },
+  projectHeading: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  projectName: { flex: 1, fontSize: 18, fontWeight: '700', color: colors.text },
+  projectBadge: { backgroundColor: colors.primaryContainer, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
+  projectBadgeLabel: { color: colors.primary, fontSize: 12, fontWeight: '600' },
   deadline: { fontSize: 14, lineHeight: 20, color: colors.danger },
-  progressLabel: { fontSize: 14, fontWeight: '600', color: colors.text },
-  progressTrack: { height: 6, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
-  progressFill: { height: '100%', borderRadius: 3, backgroundColor: colors.primary },
+  progressLabel: { fontSize: 14, fontWeight: '600', color: colors.success },
+  progressTrack: { height: 6, borderRadius: 3, backgroundColor: colors.successContainer, overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 3, backgroundColor: colors.success },
   pressed: { opacity: 0.75 },
   loader: { marginTop: 24 },
   card: { backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 12 },

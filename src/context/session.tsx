@@ -21,7 +21,7 @@ export type AccountInput = Pick<AccountProfile, 'firstName' | 'lastName' | 'emai
   currentPassword?: string;
 };
 type Credentials = { email: string; password: string };
-type RegistrationInput = Credentials & { name: string; repeatPassword: string };
+type RegistrationInput = Credentials & { firstName: string; lastName: string; repeatPassword: string };
 
 type SessionContextValue = {
   user: SessionUser | null;
@@ -158,8 +158,11 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
   async function signUp(input: RegistrationInput) {
     const email = normalizedEmail(input.email);
-    const name = input.name.trim().replace(/\s+/g, ' ');
-    if (!name) throw new Error('Podaj imię i nazwisko.');
+    const firstName = input.firstName.trim().replace(/\s+/g, ' ');
+    const lastName = input.lastName.trim().replace(/\s+/g, ' ');
+    if (!firstName) throw new Error('Podaj imię.');
+    if (!lastName) throw new Error('Podaj nazwisko.');
+    const name = `${firstName} ${lastName}`;
     if (input.password.length < 6) throw new Error('Hasło musi mieć co najmniej 6 znaków.');
     if (input.password !== input.repeatPassword) throw new Error('Podane hasła różnią się.');
     if (busy.current) throw new Error('Trwa inna operacja konta. Spróbuj ponownie za chwilę.');
@@ -167,7 +170,6 @@ export function SessionProvider({ children }: PropsWithChildren) {
     setProfileWarning('');
     try {
       const credential = await createUserWithEmailAndPassword(getFirebaseAuth(), email, input.password);
-      const [firstName, ...lastNameParts] = name.split(' ');
       let profile = defaultProfile(credential.user);
       try {
         profile = await loadProfile(credential.user);
@@ -175,7 +177,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         setProfileWarning('Nie udało się odczytać wcześniejszych danych profilu.');
       }
       await saveProfile(credential.user, {
-        ...profile, name, firstName, lastName: lastNameParts.join(' '),
+        ...profile, name, firstName, lastName,
       });
     } finally {
       busy.current = false;

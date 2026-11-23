@@ -71,12 +71,14 @@ export function EventModal({ visible, title, dateKey, initial, onCancel, onConfi
                   label="Przypomnienie"
                   selected={type === 'reminder'}
                   color={colors.reminder}
+                  containerColor={colors.reminderContainer}
                   onPress={() => setType('reminder')}
                 />
                 <TypeChip
                   label="Wydarzenie"
                   selected={type === 'event'}
                   color={colors.event}
+                  containerColor={colors.eventContainer}
                   onPress={() => setType('event')}
                 />
               </View>
@@ -131,20 +133,24 @@ function TypeChip({
   label,
   selected,
   color,
+  containerColor,
   onPress,
 }: {
   label: string;
   selected: boolean;
   color: string;
+  containerColor: string;
   onPress: () => void;
 }) {
   const styles = useStyles();
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.chip, { borderColor: color }, selected && { backgroundColor: color }]}
+      style={[styles.chip, selected && { borderColor: color, backgroundColor: containerColor }]}
     >
-      <Text style={[styles.chipLabel, selected && styles.chipLabelSelected]}>{label}</Text>
+      <Text style={[styles.chipLabel, selected && { color, fontWeight: '700' }]}>{selected ? '✓ ' : ''}{label}</Text>
     </Pressable>
   );
 }
@@ -184,14 +190,13 @@ const useStyles = createThemedStyles((colors) => StyleSheet.create({
     borderRadius: 999,
     paddingVertical: 8,
     alignItems: 'center',
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
   },
   chipLabel: {
     fontSize: 13,
     fontWeight: '600',
     color: colors.text,
-  },
-  chipLabelSelected: {
-    color: colors.onAccent,
   },
   form: {
     gap: 12,

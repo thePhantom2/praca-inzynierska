@@ -35,7 +35,7 @@ const useStyles = createThemedStyles((colors) => StyleSheet.create({
     color: colors.text,
   },
   input: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 12,
