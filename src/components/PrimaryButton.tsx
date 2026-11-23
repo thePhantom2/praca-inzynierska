@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { colors } from '@/theme/colors';
+import { createThemedStyles } from '@/theme/ThemeProvider';
 
 type PrimaryButtonProps = {
   label: string;
@@ -10,6 +10,7 @@ type PrimaryButtonProps = {
 };
 
 export function PrimaryButton({ label, onPress, variant = 'primary', disabled = false }: PrimaryButtonProps) {
+  const styles = useStyles();
   const isOutline = variant === 'outline';
   const isDanger = variant === 'danger';
 
@@ -38,7 +39,7 @@ export function PrimaryButton({ label, onPress, variant = 'primary', disabled = 
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   button: {
     borderRadius: 12,
     paddingVertical: 14,
@@ -60,10 +61,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   primaryLabel: {
-    color: colors.surface,
+    color: colors.onAccent,
   },
   dangerLabel: {
-    color: colors.surface,
+    color: colors.onAccent,
   },
   outlineLabel: {
     color: colors.text,
@@ -74,4 +75,4 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.5,
   },
-});
+}));

@@ -1,4 +1,4 @@
-export const colors = {
+export const lightColors = {
   background: '#F4F6FB',
   surface: '#FFFFFF',
   primary: '#1D4ED8',
@@ -10,4 +10,22 @@ export const colors = {
   danger: '#DC2626',
   reminder: '#D97706',
   event: '#7C3AED',
+  onAccent: '#FFFFFF',
+  overlay: 'rgba(17, 24, 39, 0.45)',
+};
+export type ThemeColors = typeof lightColors;
+export const darkColors: ThemeColors = {
+  background: '#0F172A',
+  surface: '#1E293B',
+  primary: '#93C5FD',
+  primaryDark: '#BFDBFE',
+  text: '#F1F5F9',
+  muted: '#CBD5E1',
+  border: '#475569',
+  tabInactive: '#94A3B8',
+  danger: '#F87171',
+  reminder: '#FBBF24',
+  event: '#C4B5FD',
+  onAccent: '#0F172A',
+  overlay: 'rgba(0, 0, 0, 0.65)',
 };

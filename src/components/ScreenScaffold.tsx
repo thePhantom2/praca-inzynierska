@@ -2,7 +2,7 @@ import { type ReactNode, type Ref } from 'react';
 import { ScrollView, StyleSheet, Text, View, type LayoutChangeEvent, type ScrollViewInstance, type StyleProp, type TextStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '@/theme/colors';
+import { createThemedStyles } from '@/theme/ThemeProvider';
 
 type ScreenScaffoldProps = {
   title: string;
@@ -15,6 +15,7 @@ type ScreenScaffoldProps = {
 };
 
 export function ScreenScaffold({ title, subtitle, subtitleStyle, children, topInset = true, scrollRef, onBodyLayout }: ScreenScaffoldProps) {
+  const styles = useStyles();
   const insets = useSafeAreaInsets();
 
   return (
@@ -38,7 +39,7 @@ export function ScreenScaffold({ title, subtitle, subtitleStyle, children, topIn
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   scroll: {
     flex: 1,
     backgroundColor: colors.background,
@@ -61,4 +62,4 @@ const styles = StyleSheet.create({
     marginTop: 20,
     gap: 12,
   },
-});
+}));

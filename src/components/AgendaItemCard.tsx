@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 import { type AgendaItem } from '@/utils/agenda';
 import { relativeDateLabel } from '@/utils/calendar';
 
@@ -11,12 +11,6 @@ const TYPE_LABELS = {
   task: 'Zadanie',
   deadline: 'Termin projektu',
 };
-const TYPE_COLORS = {
-  reminder: colors.reminder,
-  event: colors.event,
-  task: colors.primary,
-  deadline: colors.danger,
-};
 
 type AgendaItemCardProps = {
   item: AgendaItem;
@@ -24,6 +18,14 @@ type AgendaItemCardProps = {
 };
 
 export function AgendaItemCard({ item, onPress }: AgendaItemCardProps) {
+  const { colors } = useTheme();
+  const styles = useStyles();
+  const TYPE_COLORS = {
+    reminder: colors.reminder,
+    event: colors.event,
+    task: colors.primary,
+    deadline: colors.danger,
+  };
   const isDeadline = item.type === 'deadline';
   return (
     <Pressable
@@ -54,7 +56,7 @@ export function AgendaItemCard({ item, onPress }: AgendaItemCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -73,4 +75,4 @@ const styles = StyleSheet.create({
   deadline: { color: colors.danger },
   completed: { textDecorationLine: 'line-through', color: colors.muted },
   pressed: { opacity: 0.75 },
-});
+}));

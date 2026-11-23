@@ -1,16 +1,20 @@
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
 
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 
 type TextFieldProps = TextInputProps & {
   label: string;
 };
 
 export function TextField({ label, ...inputProps }: TextFieldProps) {
+  const { colors, isDark } = useTheme();
+  const styles = useStyles();
   return (
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        keyboardAppearance={isDark ? 'dark' : 'light'}
+        selectionColor={colors.primary}
         placeholderTextColor={colors.tabInactive}
         autoCapitalize="none"
         autoCorrect={false}
@@ -21,7 +25,7 @@ export function TextField({ label, ...inputProps }: TextFieldProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   wrap: {
     gap: 6,
   },
@@ -40,4 +44,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
   },
-});
+}));

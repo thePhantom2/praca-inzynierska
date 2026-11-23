@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 import { WEEKDAY_LABELS, getMonthCells, monthTitle, shiftMonth, toDateKey } from '@/utils/calendar';
 
 type MonthCalendarProps = {
@@ -22,6 +22,8 @@ export function MonthCalendar({
   onChangeMonth,
   onSelectDate,
 }: MonthCalendarProps) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const todayKey = toDateKey(new Date());
   const cells = getMonthCells(year, month);
 
@@ -87,7 +89,7 @@ export function MonthCalendar({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   wrap: {
     backgroundColor: colors.surface,
     borderRadius: 16,
@@ -157,7 +159,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   selectedLabel: {
-    color: colors.surface,
+    color: colors.onAccent,
     fontWeight: '700',
   },
   dot: {
@@ -172,4 +174,4 @@ const styles = StyleSheet.create({
     height: 5,
     marginTop: 3,
   },
-});
+}));

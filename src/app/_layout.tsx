@@ -1,3 +1,4 @@
+import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -7,24 +8,31 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ProjectsProvider } from '@/context/projects';
 import { EventsProvider } from '@/context/events';
 import { SessionProvider, useSession } from '@/context/session';
-import { colors } from '@/theme/colors';
+import { ThemeProvider, useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <SessionProvider>
-        <EventsProvider>
-          <ProjectsProvider>
-            <StatusBar style="dark" />
-            <RootNavigator />
-          </ProjectsProvider>
-        </EventsProvider>
-      </SessionProvider>
+      <ThemeProvider><ThemedApp /></ThemeProvider>
     </SafeAreaProvider>
   );
 }
 
+function ThemedApp() {
+  const { colors, isDark } = useTheme();
+  const base = isDark ? DarkTheme : DefaultTheme;
+  const theme = { ...base, colors: { ...base.colors, primary: colors.primary, background: colors.background, card: colors.surface, text: colors.text, border: colors.border, notification: colors.danger } };
+  return <NavigationThemeProvider value={theme}>
+    <SessionProvider><EventsProvider><ProjectsProvider>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <RootNavigator />
+    </ProjectsProvider></EventsProvider></SessionProvider>
+  </NavigationThemeProvider>;
+}
+
 function RootNavigator() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { user, isReady, initializationError, retryInitialization } = useSession();
 
   if (!isReady) {
@@ -52,6 +60,7 @@ function RootNavigator() {
     >
       <Stack.Protected guard={!!user}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="ustawienia" options={{ headerShown: false }} />
         <Stack.Screen name="ustawienia-konta" options={{ title: 'Ustawienia konta' }} />
         <Stack.Screen name="projekt/[id]" options={{ title: 'Projekt' }} />
         <Stack.Screen name="szczegoly/[id]" options={{ title: 'Wpis' }} />
@@ -63,7 +72,7 @@ function RootNavigator() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   status: { flex: 1, justifyContent: 'center', padding: 24, gap: 16, backgroundColor: colors.background },
   error: { fontSize: 16, lineHeight: 22, color: colors.danger },
-});
+}));

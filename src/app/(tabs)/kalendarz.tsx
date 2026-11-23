@@ -8,11 +8,13 @@ import { MonthCalendar } from '@/components/MonthCalendar';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { useEvents } from '@/context/events';
 import { useProjects } from '@/context/projects';
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 import { buildAgenda, type AgendaItem } from '@/utils/agenda';
 import { formatDateKey, parseDateKey, toDateKey } from '@/utils/calendar';
 
 export default function CalendarScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const today = new Date();
   const insets = useSafeAreaInsets();
   const { entries, isReady, addEntry, loadError: eventsLoadError, error: eventsError, load: reloadEvents } = useEvents();
@@ -137,7 +139,7 @@ export default function CalendarScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { paddingHorizontal: 20, gap: 12 },
   header: { gap: 16 },
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
   },
   selectedFilter: { backgroundColor: colors.primary, borderColor: colors.primary },
   filterLabel: { fontSize: 15, fontWeight: '600', color: colors.text },
-  selectedLabel: { color: colors.surface },
+  selectedLabel: { color: colors.onAccent },
   empty: {
     backgroundColor: colors.surface,
     padding: 16,
@@ -169,4 +171,4 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
   error: { fontSize: 14, lineHeight: 20, color: colors.danger },
-});
+}));

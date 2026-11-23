@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { useProjects } from '@/context/projects';
 import { type Project } from '@/storage/projectsStorage';
-import { colors } from '@/theme/colors';
+import { createThemedStyles } from '@/theme/ThemeProvider';
 
 type ProjectActionsProps = {
   project: Project;
@@ -13,6 +13,7 @@ type ProjectActionsProps = {
 };
 
 export function ProjectActions({ project, onArchived, onDeleted }: ProjectActionsProps) {
+  const styles = useStyles();
   const { archiveProject, removeProject, saving, setError } = useProjects();
   const [pendingAction, setPendingAction] = useState<'archive' | 'delete' | null>(null);
 
@@ -72,7 +73,7 @@ export function ProjectActions({ project, onArchived, onDeleted }: ProjectAction
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   actions: { gap: 10 },
   message: { fontSize: 14, lineHeight: 21, color: colors.text },
-});
+}));

@@ -1,9 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 
-import { colors } from '@/theme/colors';
+import { useTheme } from '@/theme/ThemeProvider';
 
 export default function TabsLayout() {
+  const { colors } = useTheme();
   return (
     <Tabs
       screenOptions={{
@@ -52,17 +53,16 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="profil"
         options={{
-          title: 'Konto',
+          title: 'Ustawienia',
           tabBarIcon: ({ focused, size }) => (
             <Ionicons
-              name="person-outline"
+              name="settings-outline"
               color={focused ? colors.primary : colors.tabInactive}
               size={size}
             />
           ),
         }}
       />
-      <Tabs.Screen name="ustawienia" options={{ href: null }} />
     </Tabs>
   );
 }

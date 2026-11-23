@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type PropsWithChildren } from 'react';
 
+import { disableCurrentAccount } from '@/lib/accountActions';
 import { getFirebaseAuth } from '@/lib/firebaseAuth';
 import { loadAccountProfiles, saveAccountProfiles, type AccountProfile } from '@/storage/accountStorage';
 import { authErrorMessage } from '@/utils/authErrors';
@@ -31,6 +32,7 @@ type SessionContextValue = {
   signIn: (input: Credentials) => Promise<void>;
   signUp: (input: RegistrationInput) => Promise<void>;
   signOut: () => Promise<void>;
+  disableAccount: (password: string) => Promise<void>;
   updateAccount: (input: AccountInput) => Promise<{ emailVerificationSent: boolean }>;
 };
 
@@ -191,6 +193,26 @@ export function SessionProvider({ children }: PropsWithChildren) {
     }
   }
 
+  async function disableAccount(password: string) {
+    if (!password) throw new Error('Podaj aktualne hasło.');
+    const auth = getFirebaseAuth();
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser?.email || firebaseUser.uid !== currentProfile.current?.uid) throw new Error('Zaloguj się ponownie.');
+    if (busy.current) throw new Error('Trwa inna operacja konta. Spróbuj ponownie za chwilę.');
+    busy.current = true;
+    try {
+      try {
+        await reauthenticateWithCredential(firebaseUser, EmailAuthProvider.credential(firebaseUser.email, password));
+        await disableCurrentAccount();
+      } catch (error) {
+        // A prior attempt may have succeeded despite a lost network response.
+        if ((error as { code?: string }).code !== 'auth/user-disabled') throw error;
+      }
+      try { await firebaseSignOut(auth); }
+      finally { await applyUser(null); }
+    } finally { busy.current = false; }
+  }
+
   async function updateAccount(input: AccountInput) {
     const firebaseUser = getFirebaseAuth().currentUser;
     const profile = currentProfile.current;
@@ -226,7 +248,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     <SessionContext.Provider value={{
       user, isReady, initializationError, profileWarning,
       retryInitialization: () => setInitializationAttempt((attempt) => attempt + 1),
-      signIn, signUp, signOut, updateAccount,
+      signIn, signUp, signOut, disableAccount, updateAccount,
     }}>
       {children}
     </SessionContext.Provider>

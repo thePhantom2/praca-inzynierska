@@ -10,11 +10,13 @@ import { ProjectModal } from '@/components/ProjectModal';
 import { ScreenScaffold } from '@/components/ScreenScaffold';
 import { useProjects } from '@/context/projects';
 import { type ProjectTask } from '@/storage/projectsStorage';
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 import { buildAgenda } from '@/utils/agenda';
 import { formatDateKey, parseDateKey, toDateKey } from '@/utils/calendar';
 
 export default function ProjectScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { projects, ready, loadError, load, persist, saving, error, setError } = useProjects();
   const project = projects.find((item) => item.id === id);
@@ -171,7 +173,7 @@ export default function ProjectScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   card: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 16, gap: 8 },
   section: { fontSize: 16, fontWeight: '700', color: colors.text },
   muted: { color: colors.muted, fontSize: 14, lineHeight: 21 },
@@ -180,4 +182,4 @@ const styles = StyleSheet.create({
   completed: { color: colors.muted, textDecorationLine: 'line-through' },
   error: { color: colors.danger },
   pressed: { opacity: 0.75 },
-});
+}));

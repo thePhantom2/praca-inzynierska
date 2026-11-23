@@ -1,6 +1,11 @@
 import { FirebaseError } from 'firebase/app';
 
 const MESSAGES: Record<string, string> = {
+  'functions/not-found': 'Wyłączanie kont nie zostało jeszcze uruchomione na serwerze.',
+  'functions/unavailable': 'Nie można połączyć się z serwerem. Sprawdź internet i spróbuj ponownie.',
+  'functions/unauthenticated': 'Sesja wygasła. Zaloguj się ponownie.',
+  'functions/failed-precondition': 'Potwierdź operację aktualnym hasłem i spróbuj ponownie.',
+  'functions/internal': 'Nie udało się wyłączyć konta. Spróbuj ponownie. Jeśli funkcja nie została wdrożona, uruchom ją w Firebase.',
   'auth/invalid-credential': 'Nieprawidłowy e-mail lub hasło.',
   'auth/wrong-password': 'Nieprawidłowy e-mail lub hasło.',
   'auth/user-not-found': 'Nieprawidłowy e-mail lub hasło.',
