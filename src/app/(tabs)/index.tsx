@@ -8,11 +8,13 @@ import { ScreenScaffold } from '@/components/ScreenScaffold';
 import { useEvents } from '@/context/events';
 import { useProjects } from '@/context/projects';
 import { useSession } from '@/context/session';
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 import { buildAgenda, getUpcomingAgenda } from '@/utils/agenda';
 import { formatDateKey, toDateKey } from '@/utils/calendar';
 
 export default function HomeScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { user } = useSession();
   const { entries, isReady, loadError: eventsLoadError, error: eventsError, load: reloadEvents } = useEvents();
   const { projects, ready, loadError, load } = useProjects();
@@ -98,7 +100,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   sectionTitle: { marginTop: 8, fontSize: 20, fontWeight: '700', color: colors.text },
   projectName: { fontSize: 18, fontWeight: '700', color: colors.text },
   deadline: { fontSize: 14, lineHeight: 20, color: colors.danger },
@@ -111,4 +113,4 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize: 16, fontWeight: '600', color: colors.text },
   emptyText: { fontSize: 14, lineHeight: 20, color: colors.muted },
   error: { fontSize: 14, lineHeight: 20, color: colors.danger },
-});
+}));

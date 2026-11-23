@@ -8,10 +8,12 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenScaffold } from '@/components/ScreenScaffold';
 import { useEvents } from '@/context/events';
 import { cloudErrorMessage } from '@/storage/cloudStorage';
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 import { formatDateKey } from '@/utils/calendar';
 
 export default function EventDetailsScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getEntry, updateEntry, removeEntry, isReady, loadError, error, load, saving } = useEvents();
   const [editVisible, setEditVisible] = useState(false);
@@ -73,7 +75,7 @@ export default function EventDetailsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   fallback: {
     flex: 1,
     alignItems: 'center',
@@ -86,4 +88,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.muted,
   },
-});
+}));

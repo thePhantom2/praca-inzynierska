@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TextField } from '@/components/TextField';
 import { ProjectActions } from '@/components/ProjectActions';
 import { type Project } from '@/storage/projectsStorage';
-import { colors } from '@/theme/colors';
+import { createThemedStyles } from '@/theme/ThemeProvider';
 import { parseDateKey, toDateKey } from '@/utils/calendar';
 
 function makeId() {
@@ -22,6 +22,7 @@ type Props = {
 };
 
 export function ProjectModal({ initial, saving, error, onCancel, onSave, onDeleted }: Props) {
+  const styles = useStyles();
   const [name, setName] = useState(initial?.name ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [deadline, setDeadline] = useState(initial?.deadline ?? '');
@@ -78,8 +79,8 @@ export function ProjectModal({ initial, saving, error, onCancel, onSave, onDelet
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(17, 24, 39, 0.45)', justifyContent: 'center', paddingHorizontal: 20 },
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'center', paddingHorizontal: 20 },
   card: { backgroundColor: colors.surface, borderRadius: 16, maxHeight: '100%', width: '100%', maxWidth: 560, alignSelf: 'center' },
   form: { padding: 20, gap: 16 },
   title: { fontSize: 20, fontWeight: '700', color: colors.text },
@@ -91,6 +92,6 @@ const styles = StyleSheet.create({
   cancel: { borderWidth: 1, borderColor: colors.border },
   save: { backgroundColor: colors.primary },
   cancelLabel: { color: colors.text, fontSize: 16, fontWeight: '600' },
-  saveLabel: { color: colors.surface, fontSize: 16, fontWeight: '600' },
+  saveLabel: { color: colors.onAccent, fontSize: 16, fontWeight: '600' },
   disabled: { opacity: 0.6 },
-});
+}));

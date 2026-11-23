@@ -4,9 +4,10 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { useSession } from '@/context/session';
 import { importLocalData } from '@/storage/importLocalData';
 import { cloudErrorMessage } from '@/storage/cloudStorage';
-import { colors } from '@/theme/colors';
+import { useTheme } from '@/theme/ThemeProvider';
 
 export function LocalDataImport() {
+  const { colors } = useTheme();
   const { user } = useSession();
   const owner = useRef(user?.uid);
   owner.current = user?.uid;

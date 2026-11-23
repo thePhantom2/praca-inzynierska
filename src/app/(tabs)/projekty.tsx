@@ -8,10 +8,12 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenScaffold } from '@/components/ScreenScaffold';
 import { type Project } from '@/storage/projectsStorage';
 import { useProjects } from '@/context/projects';
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 import { formatDateKey, toDateKey } from '@/utils/calendar';
 
 export default function ProjectsScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { projects, ready, loadError, error, saving, load, persist, setError } = useProjects();
   const [editor, setEditor] = useState<{ project?: Project } | null>(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -112,12 +114,12 @@ export default function ProjectsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   filter: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', minHeight: 44, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   selectedFilter: { backgroundColor: colors.primary, borderColor: colors.primary },
   filterLabel: { color: colors.text, fontSize: 15, fontWeight: '600' },
-  selectedLabel: { color: colors.surface },
+  selectedLabel: { color: colors.onAccent },
   card: { backgroundColor: colors.surface, borderRadius: 16, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 12 },
   heading: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   grow: { flex: 1 },
@@ -133,4 +135,4 @@ const styles = StyleSheet.create({
   taskTitle: { flex: 1, fontSize: 14, color: colors.text },
   completed: { color: colors.muted, textDecorationLine: 'line-through' },
   error: { color: colors.danger, fontSize: 14 },
-});
+}));

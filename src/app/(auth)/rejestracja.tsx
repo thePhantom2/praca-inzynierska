@@ -6,10 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { TextField } from '@/components/TextField';
 import { useSession } from '@/context/session';
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 import { authErrorMessage } from '@/utils/authErrors';
 
 export default function RegisterScreen() {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const { signUp } = useSession();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -99,7 +101,7 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   flex: {
     flex: 1,
     backgroundColor: colors.background,
@@ -133,4 +135,4 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '600',
   },
-});
+}));

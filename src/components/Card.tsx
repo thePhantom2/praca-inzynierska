@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '@/theme/colors';
+import { createThemedStyles } from '@/theme/ThemeProvider';
 
 type CardProps = {
   title: string;
@@ -9,6 +9,7 @@ type CardProps = {
 };
 
 export function Card({ title, description, onPress }: CardProps) {
+  const styles = useStyles();
   const content = (
     <View style={styles.card}>
       <Text style={styles.title}>{title}</Text>
@@ -27,7 +28,7 @@ export function Card({ title, description, onPress }: CardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: 16,
@@ -49,4 +50,4 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
   },
-});
+}));

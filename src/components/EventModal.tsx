@@ -7,7 +7,7 @@ import { TextField } from '@/components/TextField';
 import { type CalendarEntryInput } from '@/context/events';
 import { type CalendarEntryType } from '@/storage/eventsStorage';
 import { cloudErrorMessage } from '@/storage/cloudStorage';
-import { colors } from '@/theme/colors';
+import { useTheme, createThemedStyles } from '@/theme/ThemeProvider';
 import { formatDateKey } from '@/utils/calendar';
 
 type EventModalProps = {
@@ -20,6 +20,8 @@ type EventModalProps = {
 };
 
 export function EventModal({ visible, title, dateKey, initial, onCancel, onConfirm }: EventModalProps) {
+  const { colors } = useTheme();
+  const styles = useStyles();
   const busy = useRef(false);
   const initialRef = useRef(initial);
   initialRef.current = initial;
@@ -136,6 +138,7 @@ function TypeChip({
   color: string;
   onPress: () => void;
 }) {
+  const styles = useStyles();
   return (
     <Pressable
       onPress={onPress}
@@ -146,10 +149,10 @@ function TypeChip({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((colors) => StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(17, 24, 39, 0.45)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     padding: 20,
   },
@@ -188,7 +191,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   chipLabelSelected: {
-    color: colors.surface,
+    color: colors.onAccent,
   },
   form: {
     gap: 12,
@@ -205,4 +208,4 @@ const styles = StyleSheet.create({
   action: {
     flex: 1,
   },
-});
+}));
