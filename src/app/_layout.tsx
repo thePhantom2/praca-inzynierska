@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ProjectsProvider } from '@/context/projects';
+import { TeamsProvider } from '@/context/teams';
 import { EventsProvider } from '@/context/events';
 import { SessionProvider, useSession } from '@/context/session';
 import { ThemeProvider, useTheme, createThemedStyles } from '@/theme/ThemeProvider';
@@ -23,10 +24,10 @@ function ThemedApp() {
   const base = isDark ? DarkTheme : DefaultTheme;
   const theme = { ...base, colors: { ...base.colors, primary: colors.primary, background: colors.background, card: colors.surface, text: colors.text, border: colors.border, notification: colors.danger } };
   return <NavigationThemeProvider value={theme}>
-    <SessionProvider><EventsProvider><ProjectsProvider>
+    <SessionProvider><TeamsProvider><EventsProvider><ProjectsProvider>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <RootNavigator />
-    </ProjectsProvider></EventsProvider></SessionProvider>
+    </ProjectsProvider></EventsProvider></TeamsProvider></SessionProvider>
   </NavigationThemeProvider>;
 }
 
@@ -62,6 +63,7 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="ustawienia" options={{ headerShown: false }} />
         <Stack.Screen name="ustawienia-konta" options={{ title: 'Ustawienia konta' }} />
+        <Stack.Screen name="zespol/[id]" options={{ title: 'Zespół' }} />
         <Stack.Screen name="projekt/[id]" options={{ title: 'Projekt' }} />
         <Stack.Screen name="szczegoly/[id]" options={{ title: 'Wpis' }} />
       </Stack.Protected>

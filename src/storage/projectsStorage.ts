@@ -8,6 +8,9 @@ export type Project = {
   deadline: string;
   tasks: ProjectTask[];
   completedAt?: string;
+  teamId?: string;
+  ownerId?: string;
+  sourceId?: string;
 };
 
 const STORAGE_KEY = 'projects';
@@ -25,6 +28,9 @@ export function parseProject(value: unknown): Project {
   if (!project || typeof project.id !== 'string' || typeof project.name !== 'string' ||
     typeof project.description !== 'string' || typeof project.deadline !== 'string' ||
     (project.completedAt !== undefined && (typeof project.completedAt !== 'string' || !Number.isFinite(Date.parse(project.completedAt)))) ||
+    (project.teamId !== undefined && (typeof project.teamId !== 'string' || !project.teamId)) ||
+    (project.ownerId !== undefined && (typeof project.ownerId !== 'string' || !project.ownerId)) ||
+    (project.sourceId !== undefined && (typeof project.sourceId !== 'string' || !project.sourceId)) ||
     !Array.isArray(project.tasks) || !project.tasks.every((task: ProjectTask) =>
       task && typeof task.id === 'string' && typeof task.title === 'string' &&
       typeof task.completed === 'boolean' &&

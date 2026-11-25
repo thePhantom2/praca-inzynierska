@@ -14,7 +14,7 @@ import { formatDateKey, toDateKey } from '@/utils/calendar';
 export default function ProjectsScreen() {
   const { colors } = useTheme();
   const styles = useStyles();
-  const { projects, ready, loadError, error, saving, load, persist, setError } = useProjects();
+  const { projects, ready, loadError, error, saving, load, persist, setError, canManage } = useProjects();
   const [editor, setEditor] = useState<{ project?: Project } | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const activeCount = projects.filter((project) => !project.completedAt).length;
@@ -71,13 +71,14 @@ export default function ProjectsScreen() {
                     <Text style={styles.name}>{project.name}</Text>
                     <Text style={styles.editLabel}>Otwórz projekt ›</Text>
                   </Pressable>
-                  <Pressable accessibilityRole="button" accessibilityLabel={`Edytuj nazwę lub opis projektu ${project.name}`}
+                  {canManage(project) ? <Pressable accessibilityRole="button" accessibilityLabel={`Edytuj nazwę lub opis projektu ${project.name}`}
                     disabled={saving} onPress={() => { setError(''); setEditor({ project }); }}
                     style={({ pressed }) => [styles.edit, pressed && styles.pressed]}>
                     <Ionicons name="create-outline" size={20} color={colors.primary} />
                     <Text style={styles.editLabel}>Edytuj</Text>
-                  </Pressable>
+                  </Pressable> : null}
                 </View>
+                {project.teamId ? <Text style={styles.editLabel}>Projekt zespołowy{canManage(project) ? ' • Właściciel' : ' • Uczestnik'}</Text> : null}
                 {project.completedAt ? (
                   <Text style={styles.archived}>Zakończono {formatDateKey(toDateKey(new Date(project.completedAt)))}</Text>
                 ) : null}

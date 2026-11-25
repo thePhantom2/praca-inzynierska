@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { onSnapshot } from 'firebase/firestore';
+import { subscribeToQuery } from '@/lib/subscribeToQuery';
 import { useSession } from '@/context/session';
 import { cloudErrorMessage, commitChanges, mergeFields, userCollection } from '@/storage/cloudStorage';
 
@@ -23,7 +23,7 @@ export function useUserCollection<T extends { id: string }>(
       if (active && owner.current === uid) setState({ uid, items: [], ready: true, loadError: true, error: cloudErrorMessage(error) });
     };
     try {
-      const stop = onSnapshot(userCollection(uid, name), (snapshot) => {
+      const stop = subscribeToQuery(userCollection(uid, name), (snapshot) => {
         if (!active || owner.current !== uid) return;
         try {
           const items = snapshot.docs.map((item) => decode({ ...item.data(), id: item.id }));

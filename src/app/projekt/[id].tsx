@@ -6,6 +6,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View, type ScrollViewIn
 import { MonthCalendar } from '@/components/MonthCalendar';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ProjectTaskModal } from '@/components/ProjectTaskModal';
+import { ProjectTeamPanel } from '@/components/ProjectTeamPanel';
 import { ProjectModal } from '@/components/ProjectModal';
 import { ScreenScaffold } from '@/components/ScreenScaffold';
 import { useProjects } from '@/context/projects';
@@ -18,7 +19,7 @@ export default function ProjectScreen() {
   const { colors } = useTheme();
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { projects, ready, loadError, load, persist, saving, error, setError } = useProjects();
+  const { projects, ready, loadError, load, persist, saving, error, setError, canManage } = useProjects();
   const project = projects.find((item) => item.id === id);
   const [selectedDate, setSelectedDate] = useState(toDateKey(new Date()));
   const [month, setMonth] = useState(new Date().getMonth());
@@ -100,12 +101,13 @@ export default function ProjectScreen() {
         <Text style={styles.section}>Archiwum • Zakończono {formatDateKey(toDateKey(new Date(project.completedAt)))}</Text>
       ) : null}
       {project.description ? <Text style={styles.muted}>{project.description}</Text> : null}
-      <PrimaryButton
+      {canManage(project) ? <PrimaryButton
         label="Edytuj projekt"
         variant="outline"
         disabled={saving}
         onPress={() => { setError(''); setEditing(true); }}
-      />
+      /> : null}
+      <ProjectTeamPanel key={project.id} project={project} />
       <Text style={styles.section}>Ukończone zadania: {completed}/{project.tasks.length}</Text>
       <View onLayout={(event) => { calendarOffset.current = event.nativeEvent.layout.y; }}>
         <MonthCalendar year={year} month={month} selectedDateKey={selectedDate} markedDateKeys={markedDates} deadlineDateKeys={deadlineDates}
@@ -141,7 +143,7 @@ export default function ProjectScreen() {
           ) : null}
         </Pressable>
       ))}
-      {editing ? (
+      {editing && canManage(project) ? (
         <ProjectModal
           initial={project}
           saving={saving}
