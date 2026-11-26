@@ -13,6 +13,7 @@ export function TextField({ label, ...inputProps }: TextFieldProps) {
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        accessibilityLabel={label}
         keyboardAppearance={isDark ? 'dark' : 'light'}
         selectionColor={colors.primary}
         placeholderTextColor={colors.tabInactive}

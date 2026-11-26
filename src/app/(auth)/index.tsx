@@ -19,7 +19,7 @@ export default function LoginScreen() {
   const [signingIn, setSigningIn] = useState(false);
 
   return (
-    <SafeAreaView style={styles.flex} edges={['top', 'left', 'right', 'bottom']}>
+    <SafeAreaView testID="login-screen" style={styles.flex} edges={['top', 'left', 'right', 'bottom']}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -32,7 +32,8 @@ export default function LoginScreen() {
 
           <View style={styles.form}>
             <TextField
-              label="E-mail"
+              testID="login-email"
+            label="E-mail"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -40,7 +41,8 @@ export default function LoginScreen() {
               placeholder="jan.kowalski@example.com"
             />
             <TextField
-              label="Hasło"
+              testID="login-password"
+            label="Hasło"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -49,6 +51,7 @@ export default function LoginScreen() {
             />
             {error ? <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text> : null}
             <PrimaryButton
+            testID="login-submit"
               label={signingIn ? 'Wczytywanie…' : 'Zaloguj się'}
               disabled={signingIn}
               onPress={async () => {
@@ -71,7 +74,7 @@ export default function LoginScreen() {
 
           <Text style={styles.footer}>
             Nie masz konta?{' '}
-            <Link href="/rejestracja" style={styles.link}>
+            <Link testID="open-registration" href="/rejestracja" style={styles.link}>
               Zarejestruj się
             </Link>
           </Text>

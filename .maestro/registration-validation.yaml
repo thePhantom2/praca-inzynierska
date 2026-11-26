@@ -1,0 +1,36 @@
+appId: ${APP_ID}
+name: Osobne pola imienia i nazwiska w rejestracji
+---
+- runFlow: helpers/open-app.yaml
+- tapOn:
+    id: "open-registration"
+- assertVisible:
+    id: "register-first-name"
+- assertVisible:
+    id: "register-last-name"
+- tapOn:
+    id: "register-email"
+- inputText: "ui-tests@example.invalid"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-submit"
+    direction: DOWN
+- tapOn:
+    id: "register-submit"
+- assertVisible: "Podaj imię."
+- scrollUntilVisible:
+    element:
+      id: "register-first-name"
+    direction: UP
+- tapOn:
+    id: "register-first-name"
+- inputText: "Anna"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "register-submit"
+    direction: DOWN
+- tapOn:
+    id: "register-submit"
+- assertVisible: "Podaj nazwisko."

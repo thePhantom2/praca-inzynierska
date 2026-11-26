@@ -1,0 +1,14 @@
+appId: ${APP_ID}
+name: Walidacja logowania
+---
+- runFlow: helpers/open-app.yaml
+- tapOn:
+    id: "login-submit"
+- assertVisible: "Podaj poprawny adres e-mail."
+- tapOn:
+    id: "login-email"
+- inputText: "ui-tests@example.invalid"
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- assertVisible: "Podaj hasło."

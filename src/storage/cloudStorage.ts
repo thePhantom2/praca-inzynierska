@@ -68,7 +68,8 @@ export async function commitChanges<T extends RecordWithId>(
 
 export function cloudErrorMessage(error: unknown): string {
   const code = (error as { code?: string })?.code;
-  if (code === 'permission-denied') return 'Brak dostępu do bazy. Opublikuj reguły Firestore dla właściciela konta i spróbuj ponownie.';
+  if (code === 'permission-denied') return 'Brak dostępu do danych. Sprawdź członkostwo w zespole lub opublikuj aktualne reguły Firestore i spróbuj ponownie.';
+  if (code === 'failed-precondition') return 'Nie udało się wykonać zapytania. Sprawdź, czy indeksy Firestore są wdrożone.';
   if (code === 'unavailable' || code === 'deadline-exceeded') return 'Nie można połączyć się z bazą. Sprawdź internet i spróbuj ponownie.';
   return error instanceof Error ? error.message : 'Nie udało się zapisać danych. Spróbuj ponownie.';
 }

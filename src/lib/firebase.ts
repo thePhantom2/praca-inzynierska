@@ -1,5 +1,6 @@
 import { getApps, initializeApp, type FirebaseApp, type FirebaseOptions } from 'firebase/app';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { type Firestore } from 'firebase/firestore';
+import { getPlatformFirestore } from '@/lib/firestore';
 
 // Expo substitutes EXPO_PUBLIC_ values referenced with dot notation at build time.
 const firebaseConfig: FirebaseOptions = {
@@ -26,5 +27,5 @@ export function getFirebaseApp(): FirebaseApp {
 }
 
 export function getFirestoreDatabase(): Firestore {
-  return getFirestore(getFirebaseApp());
+  return getPlatformFirestore(getFirebaseApp());
 }

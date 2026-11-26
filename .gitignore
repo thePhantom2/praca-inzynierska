@@ -45,3 +45,8 @@ firebase-debug*.log
 firestore-debug.log
 ui-debug.log
 emulator/*.log
+
+# Test reports
+reports/
+coverage/
+.maestro/tests/

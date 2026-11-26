@@ -7,15 +7,17 @@ type PrimaryButtonProps = {
   onPress: () => void;
   variant?: 'primary' | 'outline' | 'danger';
   disabled?: boolean;
+  testID?: string;
 };
 
-export function PrimaryButton({ label, onPress, variant = 'primary', disabled = false }: PrimaryButtonProps) {
+export function PrimaryButton({ label, onPress, variant = 'primary', disabled = false, testID }: PrimaryButtonProps) {
   const styles = useStyles();
   const isOutline = variant === 'outline';
   const isDanger = variant === 'danger';
 
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       disabled={disabled}

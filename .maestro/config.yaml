@@ -1,0 +1,4 @@
+flows:
+  - login-validation.yaml
+  - registration-validation.yaml
+testOutputDir: reports/maestro

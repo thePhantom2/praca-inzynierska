@@ -68,7 +68,7 @@ export default function HomeScreen() {
               >
                 <View style={styles.projectHeading}>
                   <Text style={styles.projectName}>{project.name}</Text>
-                  <View style={styles.projectBadge}><Text style={styles.projectBadgeLabel}>Projekt</Text></View>
+                  <View style={styles.projectBadge}><Text style={styles.projectBadgeLabel}>{project.teamId ? 'Zespołowy' : 'Projekt'}</Text></View>
                 </View>
                 <Text style={styles.emptyText} numberOfLines={3}>{project.description || 'Brak opisu'}</Text>
                 <Text style={styles.deadline}>Termin zakończenia: {formatDateKey(project.deadline)}</Text>
