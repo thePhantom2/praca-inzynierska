@@ -1,0 +1,15 @@
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: false
+    clearKeychain: false
+- openLink: ${APP_URL}
+- runFlow:
+    when:
+      visible: "Open"
+    commands:
+      - tapOn: "Open"
+- extendedWaitUntil:
+    visible:
+      id: "login-screen"
+    timeout: 60000

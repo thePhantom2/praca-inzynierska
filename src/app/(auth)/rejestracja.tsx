@@ -22,7 +22,7 @@ export default function RegisterScreen() {
   const [repeatPassword, setRepeatPassword] = useState('');
 
   return (
-    <SafeAreaView style={styles.flex} edges={['top', 'left', 'right', 'bottom']}>
+    <SafeAreaView testID="register-screen" style={styles.flex} edges={['top', 'left', 'right', 'bottom']}>
     <KeyboardAvoidingView
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -39,6 +39,7 @@ export default function RegisterScreen() {
 
         <View style={styles.form}>
           <TextField
+            testID="register-first-name"
             label="Imię"
             value={firstName}
             onChangeText={setFirstName}
@@ -48,6 +49,7 @@ export default function RegisterScreen() {
             placeholder="Jan"
           />
           <TextField
+            testID="register-last-name"
             label="Nazwisko"
             value={lastName}
             onChangeText={setLastName}
@@ -57,6 +59,7 @@ export default function RegisterScreen() {
             placeholder="Kowalski"
           />
           <TextField
+            testID="register-email"
             label="E-mail"
             value={email}
             onChangeText={setEmail}
@@ -65,6 +68,7 @@ export default function RegisterScreen() {
             placeholder="jan.kowalski@example.com"
           />
           <TextField
+            testID="register-password"
             label="Hasło"
             value={password}
             onChangeText={setPassword}
@@ -73,6 +77,7 @@ export default function RegisterScreen() {
             placeholder="••••••••"
           />
           <TextField
+            testID="register-repeat-password"
             label="Powtórz hasło"
             value={repeatPassword}
             onChangeText={setRepeatPassword}
@@ -82,6 +87,7 @@ export default function RegisterScreen() {
           />
           {error ? <Text accessibilityRole="alert" style={{ color: colors.danger }}>{error}</Text> : null}
           <PrimaryButton
+            testID="register-submit"
             label={signingIn ? 'Wczytywanie…' : 'Zarejestruj się'}
             disabled={signingIn}
             onPress={async () => {
